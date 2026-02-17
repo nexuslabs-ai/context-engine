@@ -1,0 +1,235 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    # Run on PRs targeting any branch
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  pull-requests: read
+
+jobs:
+  # ============================================
+  # Format Check
+  # ============================================
+
+  format-check:
+    name: Format Check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'yarn'
+
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+
+      - name: Check formatting (changed files only)
+        run: |
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            BASE_REF="origin/${{ github.base_ref }}"
+          else
+            BASE_REF="HEAD~1"
+          fi
+
+          CHANGED_FILES=$(git diff --name-only --diff-filter=ACMR "$BASE_REF"...HEAD -- '*.ts' '*.js' '*.json' '*.md' '*.yml' || true)
+
+          if [ -n "$CHANGED_FILES" ]; then
+            echo "Checking formatting for changed files:"
+            echo "$CHANGED_FILES"
+            echo "$CHANGED_FILES" | xargs npx prettier --check
+          else
+            echo "No matching files changed, skipping format check"
+          fi
+
+  # ============================================
+  # Lint
+  # ============================================
+
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'yarn'
+
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+
+      - name: Restore Turbo cache
+        uses: actions/cache@v4
+        with:
+          path: .turbo
+          key: turbo-${{ runner.os }}-${{ github.sha }}
+          restore-keys: |
+            turbo-${{ runner.os }}-
+
+      - name: Lint (changed files only)
+        run: |
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            BASE_REF="origin/${{ github.base_ref }}"
+          else
+            BASE_REF="HEAD~1"
+          fi
+
+          CHANGED_FILES=$(git diff --name-only --diff-filter=ACMR "$BASE_REF"...HEAD -- '*.ts' '*.js' || true)
+
+          if [ -n "$CHANGED_FILES" ]; then
+            echo "Linting changed files:"
+            echo "$CHANGED_FILES"
+            echo "$CHANGED_FILES" | xargs npx eslint --max-warnings 0
+          else
+            echo "No matching files changed, skipping lint"
+          fi
+
+  # ============================================
+  # Build (affected packages only on PRs, all on main)
+  # ============================================
+
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'yarn'
+
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+
+      - name: Restore Turbo cache
+        uses: actions/cache@v4
+        with:
+          path: .turbo
+          key: turbo-${{ runner.os }}-${{ github.sha }}
+          restore-keys: |
+            turbo-${{ runner.os }}-
+
+      - name: Build affected packages
+        run: |
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            # Build only affected packages on PRs
+            yarn turbo build --filter='...[origin/${{ github.base_ref }}]'
+          else
+            # Build all on push to main
+            yarn turbo build
+          fi
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-artifacts
+          path: |
+            packages/**/dist
+            .turbo
+          retention-days: 1
+          if-no-files-found: warn
+
+  # ============================================
+  # TypeScript Check (depends on build artifacts)
+  # ============================================
+
+  typecheck:
+    name: TypeScript Check
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'yarn'
+
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: build-artifacts
+
+      - name: TypeScript check (affected packages)
+        run: |
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            yarn turbo typecheck --filter='...[origin/${{ github.base_ref }}]'
+          else
+            yarn turbo typecheck
+          fi
+
+  # ============================================================
+  # Tests (uncomment when test suite is added)
+  # Postgres service container is pre-wired for db tests
+  # ============================================================
+  # test:
+  #   name: Tests
+  #   runs-on: ubuntu-latest
+  #   needs: build
+  #   services:
+  #     postgres:
+  #       image: pgvector/pgvector:0.8.1-pg18
+  #       env:
+  #         POSTGRES_USER: context_engine
+  #         POSTGRES_PASSWORD: context_engine_dev
+  #         POSTGRES_DB: context_engine
+  #       ports:
+  #         - 5432:5432
+  #       options: >-
+  #         --health-cmd "pg_isready -U context_engine"
+  #         --health-interval 5s
+  #         --health-timeout 5s
+  #         --health-retries 5
+  #   steps:
+  #     - name: Checkout
+  #       uses: actions/checkout@v4
+  #     - name: Setup Node
+  #       uses: actions/setup-node@v4
+  #       with:
+  #         node-version: '20'
+  #         cache: 'yarn'
+  #     - name: Install dependencies
+  #       run: yarn install --frozen-lockfile
+  #     - name: Download build artifacts
+  #       uses: actions/download-artifact@v4
+  #       with:
+  #         name: build-artifacts
+  #     - name: Run tests
+  #       env:
+  #         DATABASE_URL: postgresql://context_engine:context_engine_dev@localhost:5432/context_engine
+  #       run: |
+  #         yarn workspace @context-engine/db db:migrate
+  #         yarn workspace @context-engine/core test
+  #         yarn workspace @context-engine/db test
+  #         yarn workspace @context-engine/server test
