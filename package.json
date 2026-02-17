@@ -1,0 +1,50 @@
+{
+  "name": "context-engine",
+  "private": true,
+  "type": "module",
+  "workspaces": [
+    "packages/*"
+  ],
+  "packageManager": "yarn@1.22.22",
+  "engines": {
+    "node": ">=20.19.0"
+  },
+  "scripts": {
+    "build": "turbo run build",
+    "dev": "turbo run dev",
+    "lint": "turbo run lint",
+    "typecheck": "turbo run typecheck",
+    "clean": "turbo run clean && rm -rf node_modules",
+    "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,md,yml}\"",
+    "format:check": "prettier --check \"**/*.{ts,tsx,js,jsx,json,md,yml}\"",
+    "docker:up": "docker compose -f docker/docker-compose.yml up -d",
+    "docker:down": "docker compose -f docker/docker-compose.yml down",
+    "docker:logs": "docker compose -f docker/docker-compose.yml logs -f",
+    "db:push": "yarn workspace @context-engine/db db:push",
+    "db:generate": "yarn workspace @context-engine/db db:generate",
+    "db:migrate": "yarn workspace @context-engine/db db:migrate",
+    "db:studio": "yarn workspace @context-engine/db db:studio",
+    "server:dev": "yarn workspace @context-engine/server dev",
+    "server:start": "yarn workspace @context-engine/server start"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.39.2",
+    "eslint": "^9.39.2",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-simple-import-sort": "^12.1.1",
+    "globals": "^16.5.0",
+    "prettier": "^3.7.4",
+    "turbo": "^2.7.1",
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.50.0"
+  },
+  "lint-staged": {
+    "*.{ts,tsx,js,jsx}": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "*.{json,md,yml}": [
+      "prettier --write"
+    ]
+  }
+}
