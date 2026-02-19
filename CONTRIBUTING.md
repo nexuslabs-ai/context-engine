@@ -2,6 +2,8 @@
 
 Thanks for your interest in contributing! This guide covers everything you need to get started.
 
+This repository ships first-class AI agent configurations for Claude Code and OpenCode. See [AI_SETUP.md](AI_SETUP.md) for setup instructions, a commands reference, and how to request support for other AI tools.
+
 ---
 
 ## 1. Before You Contribute

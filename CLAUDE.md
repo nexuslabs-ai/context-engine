@@ -200,3 +200,4 @@ HTTP Request → Hono Router → Middleware (auth, CORS) → Route Handler
 - Requires running postgres with pgvector (`yarn docker:up`)
 - AGPL v3 licensed — all contributions require CLA (see `CLA.md`)
 - See `CONTRIBUTING.md` for setup and PR guidelines
+- See `AI_SETUP.md` for AI tool setup, commands reference, and how to request support for other AI tools
