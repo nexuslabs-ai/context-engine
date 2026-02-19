@@ -1,0 +1,56 @@
+name: Feature Request
+description: Propose a new feature or enhancement
+labels: ['enhancement', 'needs-triage']
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Before filing a feature request, consider starting a [GitHub Discussion](https://github.com/nexuslabs-ai/context-engine/discussions) first — it helps align on scope before an issue is opened.
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem / Motivation
+      description: What problem does this feature solve? Why is it needed?
+      placeholder: When I try to do X, I can't because...
+    validations:
+      required: true
+
+  - type: textarea
+    id: solution
+    attributes:
+      label: Proposed Solution
+      description: Describe the feature you'd like to see and how it should work.
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives Considered
+      description: Any alternative approaches you've thought about?
+    validations:
+      required: false
+
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      description: Which part of the codebase does this affect?
+      options:
+        - core (extraction, generation, manifest)
+        - db (schema, repositories, pgvector)
+        - server (HTTP API, MCP server)
+        - tooling / CI
+        - documentation
+        - other
+    validations:
+      required: true
+
+  - type: textarea
+    id: context
+    attributes:
+      label: Additional Context
+      description: Any other context, mockups, or references.
+    validations:
+      required: false
