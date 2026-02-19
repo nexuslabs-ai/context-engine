@@ -73,6 +73,8 @@ yarn server:dev     # Start server in dev mode
 
 Sign the [CLA](CLA.md), read [CONTRIBUTING.md](CONTRIBUTING.md), then open a PR. All contributions are welcome.
 
+Claude Code and OpenCode AI agent configurations are included out of the box — see [AI_SETUP.md](AI_SETUP.md) for the setup guide and slash commands reference.
+
 ## License
 
 [AGPL v3](LICENSE) — free to use and modify, but any service built on top must also be open source under AGPL v3.
