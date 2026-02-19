@@ -54,21 +54,21 @@ If no PR number provided, ask the user for it.
 1. **Fetch PR details:**
 
    ```
-   mcp__github__get_pull_request(owner: "INNOVATIVEGAMER", repo: "ds", pull_number: {pr_number})
+   mcp__github__get_pull_request(owner: "nexus-labs", repo: "context-engine", pull_number: {pr_number})
    ```
 
-2. **Extract Linear issue** from PR title `[NEX-###]` or body `Closes NEX-###`
+2. **Extract GitHub issue** from PR body `Closes #123` or `Fixes #123`
 
 3. **Get all review feedback:**
 
    ```
-   mcp__github__get_pull_request_reviews(owner: "INNOVATIVEGAMER", repo: "ds", pull_number: {pr_number})
-   mcp__github__get_pull_request_comments(owner: "INNOVATIVEGAMER", repo: "ds", pull_number: {pr_number})
+   mcp__github__get_pull_request_reviews(owner: "nexus-labs", repo: "context-engine", pull_number: {pr_number})
+   mcp__github__get_pull_request_comments(owner: "nexus-labs", repo: "context-engine", pull_number: {pr_number})
    ```
 
 4. **Get changed files:**
    ```
-   mcp__github__get_pull_request_files(owner: "INNOVATIVEGAMER", repo: "ds", pull_number: {pr_number})
+   mcp__github__get_pull_request_files(owner: "nexus-labs", repo: "context-engine", pull_number: {pr_number})
    ```
 
 ### Phase 2: Spawn SDE2 Agent
@@ -85,7 +85,7 @@ Task(
   ## PR Details
   - Title: {pr_title}
   - Branch: {branch_name}
-  - Linear Issue: {issue_id}
+  - GitHub Issue: #{issue_number}
 
   ## Review Issues to Fix
 

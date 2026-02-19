@@ -10,7 +10,7 @@ Implement tests focusing on result validation over code coverage.
 Based on `$ARGUMENTS`, detect context:
 
 - `*.md` path → Testing plan or spec file
-- `NEX-###` → Linear ticket
+- `#123` or numeric → GitHub issue
 - `*.ts` or `*.tsx` → Source file to test
 - String description → Use as requirements
 - No arguments → Use conversation context

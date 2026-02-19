@@ -10,15 +10,16 @@ Implement tests using the Tester agent, focusing on result validation over code 
 
 ## Input (Optional)
 
-- **$ARGUMENTS**: Testing plan file, Linear ID, source file path, or description
+- **$ARGUMENTS**: Testing plan file, GitHub issue number, source file path, or description
 
 ```
 Examples:
   /implement-test                              → Use conversation context
   /implement-test ./docs/TESTING_PLAN.md       → Follow testing plan
-  /implement-test NEX-141                      → Fetch from Linear
+  /implement-test #42                          → Fetch from GitHub issue
+  /implement-test 42                           → Fetch from GitHub issue (number only)
   /implement-test src/module.ts                → Write tests for module
-  /implement-test "tests for Button component" → Description
+  /implement-test "tests for search pipeline"  → Description
 ```
 
 ## Context Detection
@@ -28,7 +29,7 @@ Parse `$ARGUMENTS` for:
 | Pattern            | Context Source            |
 | ------------------ | ------------------------- |
 | `*.md` path        | Testing plan or spec file |
-| `NEX-###`          | Linear ticket             |
+| `#123` or numeric  | GitHub issue              |
 | `*.ts` or `*.tsx`  | Source file to test       |
 | String description | Use as requirements       |
 | (none)             | Use conversation context  |
@@ -44,7 +45,7 @@ Parse `$ARGUMENTS` for:
 ┌─────────────────────────────────────────┐
 │           Detect Context                │
 │  • Testing plan? → Read plan            │
-│  • Linear ID? → Fetch ticket            │
+│  • GitHub issue? → Fetch issue          │
 │  • Source file? → Read file             │
 │  • Otherwise → Use conversation         │
 └─────────────────┬───────────────────────┘
@@ -75,13 +76,15 @@ Parse `$ARGUMENTS` for:
 
    ```
    If .md file → Read testing plan
-   If NEX-### → mcp__linear__get_issue(id: "{issue_id}")
+   If #123 or numeric → mcp__github__get_issue(owner: "nexus-labs", repo: "context-engine", issue_number: 123)
    If .ts/.tsx file → Read source file to understand what to test
    Otherwise → Use conversation history as context
    ```
 
 2. **Identify what package this relates to:**
-   - `packages/react/` → Component/hook testing patterns
+   - `packages/core/` → Core extraction/generation testing patterns
+   - `packages/db/` → Database integration testing patterns
+   - `packages/server/` → API/Hono testing patterns
    - Other → General Vitest patterns
 
 3. **Collect context to pass to agent:**
@@ -142,7 +145,7 @@ After tests are implemented, output:
 
 ### Context
 
-- **Source:** {Testing plan / Linear ticket / Source file / Conversation}
+- **Source:** {Testing plan / GitHub issue / Source file / Conversation}
 
 ### Test Files Created/Modified
 
@@ -190,7 +193,7 @@ All tests passing: ✅
 | ------------------------ | -------------------------------------- |
 | Testing plan not found   | Ask user to verify file path           |
 | Source file not found    | Ask user to verify file path           |
-| Linear issue not found   | Ask user to verify issue ID            |
+| GitHub issue not found   | Ask user to verify issue number        |
 | Unclear what to test     | Ask user for clarification             |
 | Tests failing            | Debug and fix (no skipping tests!)     |
 | Flaky tests              | Fix the flakiness, don't add retries   |

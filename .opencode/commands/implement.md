@@ -9,7 +9,7 @@ Implement features and tasks with production-quality code.
 
 Based on `$ARGUMENTS`, detect context:
 
-- `NEX-###` pattern → Fetch from Linear
+- `#123` or numeric → Fetch from GitHub issue
 - `.md` file path → Read markdown spec
 - `--with-architect` or `-a` → Use Principal Architect for planning first
 - No arguments → Use conversation context

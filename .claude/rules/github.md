@@ -10,21 +10,21 @@
 
 ## PR Title Format
 
-PR titles MUST include the Linear issue ID in brackets for auto-linking:
+PR titles use conventional commit format — no ticket ID required:
 
 ```
-{type}({scope}): {description} [{issue_id}]
+{type}({scope}): {description}
 ```
 
 **Examples:**
 
-- `feat(server): add component search endpoint [NEX-123]`
-- `fix(db): correct pgvector index configuration [NEX-456]`
-- `ci: setup GitHub Actions workflow [NEX-140]`
+- `feat(server): add component search endpoint`
+- `fix(db): correct pgvector index configuration`
+- `ci: setup GitHub Actions workflow`
 
 ### Commit Type Mapping
 
-| Ticket Type    | Commit Type     |
+| Change Type    | Commit Type     |
 | -------------- | --------------- |
 | Feature        | `feat`          |
 | Bug            | `fix`           |
@@ -41,9 +41,9 @@ Standard PR body structure:
 
 {bullet points of what changed}
 
-## Linear Issue
+## GitHub Issue
 
-Closes {issue_id}
+Closes #123
 
 ## Test Plan
 
@@ -53,29 +53,89 @@ Closes {issue_id}
 🤖 Generated with Claude Code
 ```
 
-## Magic Words for Linear Linking
+## Closing Issues via PR
 
-These keywords in PR body trigger Linear automation:
+Use `Closes #123` in the PR body — GitHub automatically closes the issue when the PR merges.
 
-| Keyword            | Effect on Merge     |
-| ------------------ | ------------------- |
-| `Closes NEX-###`   | Marks issue as Done |
-| `Fixes NEX-###`    | Marks issue as Done |
-| `Resolves NEX-###` | Marks issue as Done |
+| Keyword         | Effect on Merge  |
+| --------------- | ---------------- |
+| `Closes #123`   | Closes the issue |
+| `Fixes #123`    | Closes the issue |
+| `Resolves #123` | Closes the issue |
 
-**Always use `Closes {issue_id}` in the "Linear Issue" section.**
+**Always use `Closes #123` in the "GitHub Issue" section.** Prefer `Closes` for consistency.
 
-## Auto-Linking Behavior
+## Branch Naming
 
-When PR title contains `[NEX-###]`:
+Derive branch name from the GitHub issue:
 
-| Event               | Linear Update                      |
-| ------------------- | ---------------------------------- |
-| PR opened (draft)   | Issue → In Progress                |
-| PR ready for review | Issue → In Review                  |
-| PR merged           | Issue → Done (if `Closes` present) |
+```
+{username}/issue-{number}-{slugified-title}
+```
+
+**Example:** `prasad/issue-42-add-keyword-search-endpoint`
+
+Or use the GitHub CLI to generate the branch automatically:
+
+```bash
+gh issue develop 42
+```
+
+## Issue Labels
+
+| Label              | Usage                                 |
+| ------------------ | ------------------------------------- |
+| `bug`              | Something is broken or incorrect      |
+| `enhancement`      | New feature or improvement            |
+| `good first issue` | Suitable for new contributors         |
+| `question`         | Further information needed            |
+| `documentation`    | Documentation-only changes            |
+| `help wanted`      | Extra attention needed from community |
+
+## Issue Extraction
+
+When extracting a GitHub issue number from a PR or user input:
+
+| Source     | Pattern                     | Priority        |
+| ---------- | --------------------------- | --------------- |
+| PR Body    | `Closes #123`, `Fixes #123` | 1st (preferred) |
+| PR Body    | `#123` (standalone)         | 2nd             |
+| User Input | Direct input                | Fallback        |
+
+**Extraction order:**
+
+1. Check PR body for `Closes #123` or `Fixes #123`
+2. Check PR body for standalone `#123`
+3. If not found, ask user
 
 ## MCP Tool Reference
+
+### Fetching Issues
+
+```
+mcp__github__get_issue(
+  owner: "nexus-labs",
+  repo: "context-engine",
+  issue_number: 123
+)
+```
+
+Key fields to extract:
+
+- `title`, `body` — Issue details and requirements
+- `labels` — Issue classification
+- `state` — `open` or `closed`
+
+### Adding Comments to Issues
+
+```
+mcp__github__add_issue_comment(
+  owner: "nexus-labs",
+  repo: "context-engine",
+  issue_number: 123,
+  body: "Comment text..."
+)
+```
 
 ### Creating PRs
 
@@ -83,10 +143,10 @@ When PR title contains `[NEX-###]`:
 mcp__github__create_pull_request(
   owner: "nexus-labs",
   repo: "context-engine",
-  title: "{title with [issue_id]}",
+  title: "{conventional commit title}",
   head: "{branch_name}",
   base: "main",
-  body: "{PR body}"
+  body: "{PR body with Closes #123}"
 )
 ```
 
@@ -102,10 +162,10 @@ mcp__github__get_pull_request(
 
 Key fields:
 
-- `title` - PR title (extract issue ID from `[NEX-###]`)
-- `body` - PR description (extract from `Closes NEX-###`)
-- `merged_at` - Merge timestamp (null if not merged)
-- `head.ref` - Branch name
+- `title` — PR title
+- `body` — PR description (extract issue number from `Closes #123`)
+- `merged_at` — Merge timestamp (null if not merged)
+- `head.ref` — Branch name
 
 ### Fetching PR Files
 
@@ -147,9 +207,9 @@ mcp__github__create_pull_request_review(
 
 {body - what was done}
 
-Closes {issue_id}
+Closes #{issue_number}
 
-Co-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>
+Co-Authored-By: Claude <noreply@anthropic.com>
 ```
 
 **Example:**
@@ -161,9 +221,9 @@ feat(server): add keyword search endpoint
 - Backed by pgvector cosine similarity
 - Returns ranked component matches with metadata
 
-Closes NEX-150
+Closes #42
 
-Co-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>
+Co-Authored-By: Claude <noreply@anthropic.com>
 ```
 
 ## Branch Operations
@@ -205,8 +265,8 @@ _Review performed against: `.claude/rules/context-engine.md`, `.claude/rules/con
 
 ## Do Not
 
-- Create PRs without `[{issue_id}]` in title (breaks auto-linking)
-- Forget `Closes {issue_id}` in PR body (breaks auto-done)
+- Forget `Closes #123` in PR body (breaks auto-close on merge)
 - Use `Fixes` inconsistently (prefer `Closes` for consistency)
 - Skip the Test Plan section
 - Forget `Co-Authored-By` in commits
+- Add ticket IDs to PR titles (this is OSS — no Linear IDs)

@@ -11,17 +11,17 @@ Comprehensive code review using dual-agent analysis. Auto-detects context based 
 
 ## Required Input
 
-- **PR Number or Linear Issue ID**: $ARGUMENTS (e.g., `5` or `NEX-140`)
+- **PR Number**: $ARGUMENTS (e.g., `5`)
 - **Optional flag**: `--follow-up` or `-f` for re-review after changes
 
 ```
 Examples:
   /pr-review 5                → Full review (first time)
   /pr-review 5 --follow-up    → Follow-up review (after changes pushed)
-  /pr-review NEX-140 -f       → Follow-up using Linear issue
+  /pr-review 5 -f             → Follow-up (short flag)
 ```
 
-If no input provided, ask the user for PR number.
+If no input provided, ask the user for the PR number.
 
 ## Mode Detection
 
@@ -36,35 +36,22 @@ If no input provided, ask the user for PR number.
 
 ### Phase 1: Get PR Context
 
-1. **Determine input type:**
-   - If numeric only → PR number
-   - If contains `NEX-` → Linear issue ID
-
-2. **If Linear issue ID provided:**
+1. **Fetch PR details:**
 
    ```
-   mcp__linear__get_issue(id: "{issue_id}")
+   mcp__github__get_pull_request(owner: "nexus-labs", repo: "context-engine", pull_number: {pr_number})
    ```
 
-   - Look for PR link in attachments/links
-   - If no PR found, ask user for PR number
-
-3. **Fetch PR details:**
-
-   ```
-   mcp__github__get_pull_request(owner: "INNOVATIVEGAMER", repo: "ds", pull_number: {pr_number})
-   ```
-
-4. **Extract:**
+2. **Extract:**
    - PR title and description
    - Base and head branches
-   - Linked Linear issue (from title `[NEX-###]` or body)
+   - Linked GitHub issue (from body `Closes #123` or `Fixes #123`)
    - PR author
 
-5. **If Linear issue linked, fetch ticket:**
+3. **If GitHub issue linked, fetch it:**
 
    ```
-   mcp__linear__get_issue(id: "{issue_id}")
+   mcp__github__get_issue(owner: "nexus-labs", repo: "context-engine", issue_number: 123)
    ```
 
    - Understand what was requested
@@ -75,20 +62,20 @@ If no input provided, ask the user for PR number.
 1. **Get list of changed files:**
 
    ```
-   mcp__github__get_pull_request_files(owner: "INNOVATIVEGAMER", repo: "ds", pull_number: {pr_number})
+   mcp__github__get_pull_request_files(owner: "nexus-labs", repo: "context-engine", pull_number: {pr_number})
    ```
 
 2. **For each changed file, read full content** using Read tool
 
 3. **Auto-detect context and load rules:**
 
-   | Files Changed                              | Rules to Load                                                                                                                                                                                             |
-   | ------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-   | `packages/react/src/components/**`         | [components.md](../rules/components.md), [testing.md](../rules/testing.md), [storybook.md](../rules/storybook.md), [figma.md](../rules/figma.md), [shadcn-divergences.md](../rules/shadcn-divergences.md) |
-   | `packages/react/src/hooks/**`              | [testing.md](../rules/testing.md)                                                                                                                                                                         |
-   | `packages/core/**`, `packages/tailwind/**` | [tokens.md](../rules/tokens.md)                                                                                                                                                                           |
-   | `.claude/**`                               | Check [Claude Code docs](https://code.claude.com/docs/en/) for latest capabilities                                                                                                                        |
-   | Any PR                                     | [github.md](../rules/github.md), [linear.md](../rules/linear.md)                                                                                                                                          |
+   | Files Changed        | Rules to Load                                                                                        |
+   | -------------------- | ---------------------------------------------------------------------------------------------------- |
+   | `packages/core/**`   | [context-engine.md](../rules/context-engine.md), [testing.md](../rules/testing.md)                   |
+   | `packages/db/**`     | [context-engine-database.md](../rules/context-engine-database.md), [testing.md](../rules/testing.md) |
+   | `packages/server/**` | [context-engine-api.md](../rules/context-engine-api.md), [testing.md](../rules/testing.md)           |
+   | `.claude/**`         | Check [Claude Code docs](https://code.claude.com/docs/en/) for latest capabilities                   |
+   | Any PR               | [github.md](../rules/github.md)                                                                      |
 
 ### Phase 3: Principal Architect Review
 
@@ -104,14 +91,14 @@ Task(
   ## PR Details
   - Title: {pr_title}
   - Description: {pr_description}
-  - Linear Issue: {issue_id}
+  - GitHub Issue: #{issue_number}
 
   ## Changed Files
   {list of changed files with patches}
 
   ## Context
   - Loaded rules: {rules loaded based on files changed}
-  - Ticket requirements: {from Linear issue if available}
+  - Issue requirements: {from GitHub issue if available}
 
   ## Instructions
   1. Read the pr-review skill at `.claude/skills/pr-review/SKILL.md`
@@ -137,14 +124,14 @@ Task(
   ## PR Details
   - Title: {pr_title}
   - Description: {pr_description}
-  - Linear Issue: {issue_id}
+  - GitHub Issue: #{issue_number}
 
   ## Changed Files
   {list of changed files with patches}
 
   ## Context
   - Loaded rules: {rules loaded based on files changed}
-  - Ticket requirements: {from Linear issue if available}
+  - Issue requirements: {from GitHub issue if available}
 
   ## Instructions
   1. Read the pr-review skill at `.claude/skills/pr-review/SKILL.md`
@@ -200,8 +187,8 @@ Review against:
 
    ```
    mcp__github__create_pull_request_review(
-     owner: "INNOVATIVEGAMER",
-     repo: "ds",
+     owner: "nexus-labs",
+     repo: "context-engine",
      pull_number: {pr_number},
      body: "{Principal Architect review from skill}",
      event: "COMMENT",
@@ -213,8 +200,8 @@ Review against:
 
    ```
    mcp__github__create_pull_request_review(
-     owner: "INNOVATIVEGAMER",
-     repo: "ds",
+     owner: "nexus-labs",
+     repo: "context-engine",
      pull_number: {pr_number},
      body: "{SDE2 review from skill}",
      event: "{APPROVE|COMMENT|REQUEST_CHANGES}",
@@ -228,14 +215,6 @@ Review against:
    | No blocking issues in either review | `APPROVE` |
    | Only minor issues (⚠️) | `COMMENT` |
    | Any blocking issues (❌) | `REQUEST_CHANGES` |
-
-3. **If Linear ticket linked:**
-   ```
-   mcp__linear__create_comment(
-     issueId: "{issue_id}",
-     body: "📋 **PR Review Complete**\n\n🏛️ Architect: {verdict}\n👨‍💻 SDE2: {verdict}\n\nSee PR for details: {pr_url}"
-   )
-   ```
 
 ---
 
@@ -259,13 +238,13 @@ When developer pushes changes after initial review, use follow-up mode to focus 
 2. **Fetch previous reviews:**
 
    ```
-   mcp__github__get_pull_request_reviews(owner: "INNOVATIVEGAMER", repo: "ds", pull_number: {pr_number})
+   mcp__github__get_pull_request_reviews(owner: "nexus-labs", repo: "context-engine", pull_number: {pr_number})
    ```
 
 3. **Fetch review comments:**
 
    ```
-   mcp__github__get_pull_request_comments(owner: "INNOVATIVEGAMER", repo: "ds", pull_number: {pr_number})
+   mcp__github__get_pull_request_comments(owner: "nexus-labs", repo: "context-engine", pull_number: {pr_number})
    ```
 
 4. **Parse previous review data:**
@@ -279,7 +258,7 @@ When developer pushes changes after initial review, use follow-up mode to focus 
 1. **Get commits since last review:**
 
    ```
-   mcp__github__list_commits(owner: "INNOVATIVEGAMER", repo: "ds", sha: "{pr_head_sha}")
+   mcp__github__list_commits(owner: "nexus-labs", repo: "context-engine", sha: "{pr_head_sha}")
    ```
 
    - Filter to commits after last review timestamp
@@ -287,7 +266,7 @@ When developer pushes changes after initial review, use follow-up mode to focus 
 2. **Get current changed files:**
 
    ```
-   mcp__github__get_pull_request_files(owner: "INNOVATIVEGAMER", repo: "ds", pull_number: {pr_number})
+   mcp__github__get_pull_request_files(owner: "nexus-labs", repo: "context-engine", pull_number: {pr_number})
    ```
 
 3. **Determine if Architect review needed:**
@@ -379,8 +358,8 @@ Task(
 
 ```
 mcp__github__create_pull_request_review(
-  owner: "INNOVATIVEGAMER",
-  repo: "ds",
+ owner: "nexus-labs",
+ repo: "context-engine",
   pull_number: {pr_number},
   body: "{Follow-up review}",
   event: "{APPROVE|COMMENT|REQUEST_CHANGES}",
@@ -449,7 +428,7 @@ mcp__github__create_pull_request_review(
 ### Links
 
 - **PR:** {pr_url}
-- **Linear:** {linear_url}
+- **GitHub Issue:** {issue_url}
 ```
 
 ### Follow-up Review Output
@@ -501,7 +480,7 @@ mcp__github__create_pull_request_review(
 ### Links
 
 - **PR:** {pr_url}
-- **Linear:** {linear_url}
+- **GitHub Issue:** {issue_url}
 ```
 
 ---

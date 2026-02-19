@@ -28,21 +28,23 @@ Create comprehensive implementation plans for complex tasks, providing architect
 
 Based on task type, reference these rules when planning:
 
-| Task Type    | Rules to Reference                                                           |
-| ------------ | ---------------------------------------------------------------------------- |
-| Component    | [components.md](../../rules/components.md), [figma.md](../../rules/figma.md) |
-| Token System | [tokens.md](../../rules/tokens.md)                                           |
+| Task Type  | Rules to Reference                                                       |
+| ---------- | ------------------------------------------------------------------------ |
+| Core       | [context-engine.md](../../rules/context-engine.md)                       |
+| Database   | [context-engine-database.md](../../rules/context-engine-database.md)     |
+| Server     | [context-engine-api.md](../../rules/context-engine-api.md)               |
+| Embeddings | [context-engine-embeddings.md](../../rules/context-engine-embeddings.md) |
 
-**Always also load:** Base rules (workflow, github, linear)
+**Always also load:** Base rules (workflow, github)
 
 ## Planning Process
 
 ### Phase 1: Understand Requirements
 
-1. **Read the Linear ticket thoroughly:**
+1. **Fetch the GitHub issue if one is referenced:**
 
    ```
-   mcp__linear__get_issue(id: "{issue_id}", includeRelations: true)
+   mcp__github__get_issue(owner: "nexus-labs", repo: "context-engine", issue_number: 123)
    ```
 
 2. **Extract key information:**
@@ -50,10 +52,6 @@ Based on task type, reference these rules when planning:
    - What are the acceptance criteria?
    - Any constraints or requirements?
    - Linked designs or references?
-
-3. **If Figma link present:**
-   - Use `mcp__figma__get_design_context` to understand the design
-   - Note complexity and variants
 
 ### Phase 2: Research Technology Context
 
@@ -144,7 +142,7 @@ Output the plan and **WAIT for user approval** before implementation.
 
 ### Task
 
-- **Linear:** {issue_id} - {title}
+- **GitHub Issue:** #{issue_number} - {title}
 - **Complexity:** {Low|Medium|High}
 - **Estimated Phases:** {count}
 

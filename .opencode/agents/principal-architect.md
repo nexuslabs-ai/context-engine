@@ -52,7 +52,6 @@ These rules apply to ALL skills this agent executes. Read and internalize before
 | --------------------------- | --------------------------------------------- |
 | `.claude/rules/workflow.md` | Phase-based execution (plan → execute → wait) |
 | `.claude/rules/github.md`   | PR conventions, commit format, branch naming  |
-| `.claude/rules/linear.md`   | Ticket linking, status updates, comments      |
 
 ## Focus Areas
 

@@ -1,6 +1,6 @@
 ---
 name: implement
-description: Implement features and tasks with production-quality code. Use when implementing features, building components, or any task requiring code implementation from any context source (Linear tickets, markdown specs, or conversation).
+description: Implement features and tasks with production-quality code. Use when implementing features, building components, or any task requiring code implementation from any context source (GitHub issues, markdown specs, or conversation).
 allowed-tools:
   - Read
   - Grep
@@ -30,25 +30,23 @@ Implement features and tasks with production-quality code, following codebase co
 
 This skill works with multiple input types:
 
-| Source            | Detection                  | How to Extract                             |
-| ----------------- | -------------------------- | ------------------------------------------ |
-| **Linear ticket** | `NEX-###` pattern in input | `mcp__linear__get_issue(id: "{issue_id}")` |
-| **Markdown file** | `.md` file path referenced | Read the file content                      |
-| **Figma design**  | Figma URL in context       | `mcp__figma__get_design_context`           |
-| **Conversation**  | Requirements in chat       | Parse from conversation history            |
+| Source            | Detection                  | How to Extract                                                                           |
+| ----------------- | -------------------------- | ---------------------------------------------------------------------------------------- |
+| **GitHub issue**  | `#123` or GitHub issue URL | `mcp__github__get_issue(owner: "nexus-labs", repo: "context-engine", issue_number: 123)` |
+| **Markdown file** | `.md` file path referenced | Read the file content                                                                    |
+| **Conversation**  | Requirements in chat       | Parse from conversation history                                                          |
 
 ## Task-Specific Rules
 
 Based on what you're implementing, load these rules **before writing any code**:
 
-| Task Type | Detect By                              | Rules to Load                                                                                                                                                |
-| --------- | -------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| Component | `packages/react/src/components/`       | [components.md](../../rules/components.md), [testing.md](../../rules/testing.md), [storybook.md](../../rules/storybook.md), [figma.md](../../rules/figma.md) |
-| Hook      | `packages/react/src/hooks/`            | [testing.md](../../rules/testing.md)                                                                                                                         |
-| Utility   | `packages/react/src/lib/`              | [testing.md](../../rules/testing.md)                                                                                                                         |
-| Token     | `packages/core/`, `packages/tailwind/` | [tokens.md](../../rules/tokens.md)                                                                                                                           |
+| Task Type | Detect By          | Rules to Load                                                                                              |
+| --------- | ------------------ | ---------------------------------------------------------------------------------------------------------- |
+| Core      | `packages/core/`   | [context-engine.md](../../rules/context-engine.md), [testing.md](../../rules/testing.md)                   |
+| Database  | `packages/db/`     | [context-engine-database.md](../../rules/context-engine-database.md), [testing.md](../../rules/testing.md) |
+| Server    | `packages/server/` | [context-engine-api.md](../../rules/context-engine-api.md), [testing.md](../../rules/testing.md)           |
 
-**Always also load:** Base rules (workflow, github, linear — if Linear context present)
+**Always also load:** Base rules (workflow, github)
 
 ## Agent Delegation
 
@@ -106,34 +104,29 @@ After completion, provide:
 1. **Detect context source:**
 
    ```
-   If NEX-### pattern → Fetch Linear ticket
+   If #123 or GitHub issue URL → Fetch GitHub issue
    If .md file referenced → Read markdown file
-   If Figma URL present → Fetch design context
    Otherwise → Use conversation context
    ```
 
-2. **If Linear ticket:**
+2. **If GitHub issue:**
 
    ```
-   mcp__linear__get_issue(id: "{issue_id}", includeRelations: true)
+   mcp__github__get_issue(owner: "nexus-labs", repo: "context-engine", issue_number: 123)
    ```
 
-   - Extract requirements, acceptance criteria
-   - Check for linked Figma designs
+   - Extract requirements and acceptance criteria from issue body
+   - Check for linked designs or references in issue comments
 
 3. **If Markdown file:**
    - Read the referenced file
    - Extract requirements and acceptance criteria
 
-4. **If Figma design:**
-   - Use `mcp__figma__get_design_context` to understand the design
-   - Note variants, sizes, states required
-
-5. **If conversation context:**
+4. **If conversation context:**
    - Summarize what the user is asking for
    - Clarify any ambiguous requirements before proceeding
 
-6. **Extract key information:**
+5. **Extract key information:**
    - What needs to be built?
    - Acceptance criteria (explicit or inferred)
    - Any design references?
@@ -241,7 +234,7 @@ After implementation is complete:
 
 {Include whichever applies:}
 
-- **Linear:** NEX-### - {title}
+- **GitHub Issue:** #123 - {title}
 - **Spec:** {filename.md}
 - **Request:** {brief summary of what was asked}
 

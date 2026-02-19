@@ -28,42 +28,43 @@ Implement tests with a focus on result validation over code coverage. Works with
 
 This skill works with multiple input types:
 
-| Source            | Detection                  | How to Extract                             |
-| ----------------- | -------------------------- | ------------------------------------------ |
-| **Testing plan**  | `.md` file with test plan  | Read the file content                      |
-| **Linear ticket** | `NEX-###` pattern in input | `mcp__linear__get_issue(id: "{issue_id}")` |
-| **Source code**   | File path to code to test  | Read the source file                       |
-| **Conversation**  | Requirements in chat       | Parse from conversation history            |
+| Source           | Detection                  | How to Extract                                                                           |
+| ---------------- | -------------------------- | ---------------------------------------------------------------------------------------- |
+| **Testing plan** | `.md` file with test plan  | Read the file content                                                                    |
+| **GitHub issue** | `#123` or GitHub issue URL | `mcp__github__get_issue(owner: "nexus-labs", repo: "context-engine", issue_number: 123)` |
+| **Source code**  | File path to code to test  | Read the source file                                                                     |
+| **Conversation** | Requirements in chat       | Parse from conversation history                                                          |
 
 ## Package-Specific Testing Patterns
 
 Based on what you're testing, different patterns apply:
 
-| Package            | Detect By                              | Testing Approach                        |
-| ------------------ | -------------------------------------- | --------------------------------------- |
-| React Components   | `packages/react/src/components/`       | Story-first testing with play functions |
-| React Hooks        | `packages/react/src/hooks/`            | Unit tests with `@nexus/test-utils`     |
-| Core/Tailwind      | `packages/core/`, `packages/tailwind/` | Unit tests, output validation           |
-| General TypeScript | Any `.ts` or `.tsx`                    | Vitest unit/integration tests           |
+| Package            | Detect By          | Testing Approach                  |
+| ------------------ | ------------------ | --------------------------------- |
+| Core               | `packages/core/`   | Unit + integration tests (Vitest) |
+| Database           | `packages/db/`     | Integration tests with test DB    |
+| Server             | `packages/server/` | Integration tests (Hono + mock)   |
+| General TypeScript | Any `.ts`          | Vitest unit/integration tests     |
 
 ## Task-Specific Rules
 
 Load rules based on what you're testing **before writing any tests**:
 
-| Package          | Rules to Load                                                                                                                    |
-| ---------------- | -------------------------------------------------------------------------------------------------------------------------------- |
-| React Components | [testing.md](../../rules/testing.md), [testing-react.md](../../rules/testing-react.md), [storybook.md](../../rules/storybook.md) |
-| React Hooks      | [testing.md](../../rules/testing.md), [testing-react.md](../../rules/testing-react.md)                                           |
-| Core/Tailwind    | [testing.md](../../rules/testing.md)                                                                                             |
-| General          | [testing.md](../../rules/testing.md)                                                                                             |
+| Package  | Rules to Load                                                                                              |
+| -------- | ---------------------------------------------------------------------------------------------------------- |
+| Core     | [testing.md](../../rules/testing.md), [context-engine.md](../../rules/context-engine.md)                   |
+| Database | [testing.md](../../rules/testing.md), [context-engine-database.md](../../rules/context-engine-database.md) |
+| Server   | [testing.md](../../rules/testing.md), [context-engine-api.md](../../rules/context-engine-api.md)           |
+| General  | [testing.md](../../rules/testing.md)                                                                       |
 
 **Rule file purpose:**
 
-- `testing.md` — Core philosophy (always load)
-- `testing-react.md` — React/Storybook patterns (for `@nexus/react`)
-- `storybook.md` — Story structure (for component stories)
+- `testing.md` — Core testing philosophy (always load)
+- `context-engine.md` — Domain concepts and patterns
+- `context-engine-api.md` — API/server patterns
+- `context-engine-database.md` — DB/Drizzle patterns
 
-**Always also load:** Base rules (workflow, github, linear — if Linear context present)
+**Always also load:** Base rules (workflow, github)
 
 ## Agent Delegation
 
@@ -109,7 +110,7 @@ After completion, provide:
    ```
    If testing plan provided → Read and understand requirements
    If source file provided → Read and understand the code
-   If Linear ticket → Fetch ticket details
+   If GitHub issue → Fetch issue details
    Otherwise → Clarify with user what needs tests
    ```
 

@@ -121,8 +121,7 @@ yarn server:start   # Production server
 | [.claude/rules/context-engine-database.md](.claude/rules/context-engine-database.md)     | Database patterns (Drizzle, pgvector, schema)  |
 | [.claude/rules/context-engine-embeddings.md](.claude/rules/context-engine-embeddings.md) | Embedding patterns (chunking, vector search)   |
 | [.claude/rules/testing.md](.claude/rules/testing.md)                                     | Core testing philosophy                        |
-| [.claude/rules/linear.md](.claude/rules/linear.md)                                       | Linear integration, issue linking, status flow |
-| [.claude/rules/github.md](.claude/rules/github.md)                                       | PR format, commit conventions, auto-linking    |
+| [.claude/rules/github.md](.claude/rules/github.md)                                       | PR format, commit conventions, issue linking   |
 
 ## Skills (Auto-Discovered)
 
@@ -149,14 +148,14 @@ yarn server:start   # Production server
 
 ## Slash Commands
 
-| Command           | Agent(s) Used              | Purpose                                               |
-| ----------------- | -------------------------- | ----------------------------------------------------- |
-| `/implement`      | SDE2 (+ Architect w/flag)  | Implement Linear ticket (optional `--with-architect`) |
-| `/implement-test` | Tester                     | Implement tests from plan or context                  |
-| `/pr-review`      | Principal Architect + SDE2 | Dual-perspective PR code review                       |
-| `/pr-fix`         | SDE2                       | Fix PR review issues (blocking first, then minor)     |
-| `/update-docs`    | Technical Writer           | Update documentation after codebase changes           |
-| `/analyze-deps`   | DevOps                     | Analyze dependencies for updates and migration paths  |
+| Command           | Agent(s) Used              | Purpose                                                      |
+| ----------------- | -------------------------- | ------------------------------------------------------------ |
+| `/implement`      | SDE2 (+ Architect w/flag)  | Implement GitHub issue or spec (optional `--with-architect`) |
+| `/implement-test` | Tester                     | Implement tests from plan or context                         |
+| `/pr-review`      | Principal Architect + SDE2 | Dual-perspective PR code review                              |
+| `/pr-fix`         | SDE2                       | Fix PR review issues (blocking first, then minor)            |
+| `/update-docs`    | Technical Writer           | Update documentation after codebase changes                  |
+| `/analyze-deps`   | DevOps                     | Analyze dependencies for updates and migration paths         |
 
 ## Code Style
 

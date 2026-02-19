@@ -27,13 +27,13 @@ Fix issues identified in PR reviews, addressing both blocking and minor concerns
 
 Based on files changed in the PR, load appropriate rules **before fixing**:
 
-| Files Changed                          | Rules to Load                                                                                                              |
-| -------------------------------------- | -------------------------------------------------------------------------------------------------------------------------- |
-| `packages/react/src/components/`       | [components.md](../../rules/components.md), [testing.md](../../rules/testing.md), [storybook.md](../../rules/storybook.md) |
-| `packages/react/src/hooks/`            | [testing.md](../../rules/testing.md)                                                                                       |
-| `packages/core/`, `packages/tailwind/` | [tokens.md](../../rules/tokens.md)                                                                                         |
+| Files Changed      | Rules to Load                                                                                              |
+| ------------------ | ---------------------------------------------------------------------------------------------------------- |
+| `packages/core/`   | [context-engine.md](../../rules/context-engine.md), [testing.md](../../rules/testing.md)                   |
+| `packages/db/`     | [context-engine-database.md](../../rules/context-engine-database.md), [testing.md](../../rules/testing.md) |
+| `packages/server/` | [context-engine-api.md](../../rules/context-engine-api.md), [testing.md](../../rules/testing.md)           |
 
-**Always also load:** Base rules (workflow, github, linear)
+**Always also load:** Base rules (workflow, github)
 
 ## Fix Process
 

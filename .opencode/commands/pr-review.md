@@ -7,7 +7,7 @@ Comprehensive code review using dual-agent analysis. Auto-detects context based 
 
 ## Required Input
 
-- **PR Number or Linear Issue ID**: $ARGUMENTS (e.g., `5` or `NEX-140`)
+- **PR Number**: $ARGUMENTS (e.g., `5`)
 - **Optional flag**: `--follow-up` or `-f` for re-review after changes
 
 ## Mode Detection
@@ -29,13 +29,12 @@ Comprehensive code review using dual-agent analysis. Auto-detects context based 
 
 ## Full Review Flow
 
-1. Get PR context (title, description, linked Linear issue)
+1. Get PR context (title, description, linked GitHub issue)
 2. Read all changed files
-3. Load rules based on detected context (components, tokens, etc.)
+3. Load rules based on detected context (core, db, server, etc.)
 4. Principal Architect reviews: system design, scalability, data model, security
 5. SDE2 reviews: type safety, error handling, code structure, testability
 6. Post reviews with inline comments at specific lines
-7. Add Linear comment summarizing review
 
 ## Follow-up Mode
 

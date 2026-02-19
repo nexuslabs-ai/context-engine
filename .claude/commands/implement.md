@@ -11,16 +11,17 @@ Implement features and tasks using the SDE2 agent, with optional architectural g
 
 ## Input (Optional)
 
-- **$ARGUMENTS**: Linear ID, file path, or flags
+- **$ARGUMENTS**: GitHub issue number, file path, or flags
 
 ```
 Examples:
   /implement                           → Use conversation context
-  /implement NEX-150                   → Fetch from Linear
+  /implement #42                       → Fetch from GitHub issue
+  /implement 42                        → Fetch from GitHub issue (number only)
   /implement ./specs/feature.md        → Read markdown spec
   /implement --with-architect          → Architect plans first (conversation context)
-  /implement NEX-150 --with-architect  → Linear + Architect
-  /implement NEX-150 -a                → Short flag for architect
+  /implement #42 --with-architect      → GitHub issue + Architect
+  /implement 42 -a                     → Short flag for architect
 ```
 
 ## Context Detection
@@ -29,7 +30,7 @@ Parse `$ARGUMENTS` for:
 
 | Pattern                    | Context Source            |
 | -------------------------- | ------------------------- |
-| `NEX-###`                  | Linear ticket             |
+| `#123` or numeric          | GitHub issue              |
 | `*.md` path                | Markdown spec file        |
 | `--with-architect` or `-a` | Enable architect planning |
 | (none)                     | Use conversation context  |
@@ -38,13 +39,16 @@ Parse `$ARGUMENTS` for:
 
 ```
 ┌─────────────────────────────────────────┐
-│              /implement                 │
+│           Detect Context                │
+│  • GitHub issue? → Fetch issue          │
+│  • .md file? → Read spec                │
+│  • Otherwise → Use conversation         │
 └─────────────────┬───────────────────────┘
                   │
                   ▼
 ┌─────────────────────────────────────────┐
 │           Detect Context                │
-│  • Linear ID? → Fetch ticket            │
+│  • GitHub issue? → Fetch issue          │
 │  • .md file? → Read spec                │
 │  • Otherwise → Use conversation         │
 └─────────────────┬───────────────────────┘
@@ -126,13 +130,13 @@ Parse `$ARGUMENTS` for:
 1. **Parse arguments for context:**
 
    ```
-   If NEX-### found → mcp__linear__get_issue(id: "{issue_id}")
+   If #123 or numeric found → mcp__github__get_issue(owner: "nexus-labs", repo: "context-engine", issue_number: 123)
    If .md path found → Read file content
    Otherwise → Use conversation history as context
    ```
 
 2. **Collect context to pass to agents:**
-   - Task requirements (from Linear/spec/conversation)
+   - Task requirements (from GitHub issue/spec/conversation)
    - Relevant rules based on expected file changes
    - Any constraints or preferences mentioned
 
@@ -152,7 +156,7 @@ Task(
   Create an implementation plan for this task.
 
   ## Task Context
-  - Source: {Linear NEX-### | spec file | conversation}
+  - Source: {GitHub issue #123 | spec file | conversation}
   - Requirements: {task requirements}
 
   ## Instructions
@@ -182,7 +186,7 @@ Task(
   Implement this task.
 
   ## Task Context
-  - Source: {Linear NEX-### | spec file | conversation}
+  - Source: {GitHub issue #123 | spec file | conversation}
   - Requirements: {task requirements}
   {If architect plan exists:}
   - Architect Plan: {the approved plan}
@@ -215,7 +219,7 @@ After implementation is complete, output:
 
 {Include whichever applies:}
 
-- **Linear:** NEX-### - {title}
+- **GitHub Issue:** #123 - {title}
 - **Spec:** {filename.md}
 - **Request:** {brief summary}
 
@@ -256,7 +260,7 @@ After implementation is complete, output:
 
 | Error                   | Action                              |
 | ----------------------- | ----------------------------------- |
-| Linear issue not found  | Ask user to verify issue ID         |
+| GitHub issue not found  | Ask user to verify issue number     |
 | Spec file not found     | Ask user to verify file path        |
 | Unclear requirements    | Ask user for clarification          |
 | Architect plan rejected | Revise plan or ask for guidance     |
