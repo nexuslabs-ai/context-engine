@@ -28,12 +28,12 @@ Implement tests with a focus on result validation over code coverage. Works with
 
 This skill works with multiple input types:
 
-| Source           | Detection                  | How to Extract                                                                           |
-| ---------------- | -------------------------- | ---------------------------------------------------------------------------------------- |
-| **Testing plan** | `.md` file with test plan  | Read the file content                                                                    |
-| **GitHub issue** | `#123` or GitHub issue URL | `mcp__github__get_issue(owner: "nexus-labs", repo: "context-engine", issue_number: 123)` |
-| **Source code**  | File path to code to test  | Read the source file                                                                     |
-| **Conversation** | Requirements in chat       | Parse from conversation history                                                          |
+| Source           | Detection                  | How to Extract                                                |
+| ---------------- | -------------------------- | ------------------------------------------------------------- |
+| **Testing plan** | `.md` file with test plan  | Read the file content                                         |
+| **GitHub issue** | `#123` or GitHub issue URL | `gh issue view 123 --json number,title,body,labels,state,url` |
+| **Source code**  | File path to code to test  | Read the source file                                          |
+| **Conversation** | Requirements in chat       | Parse from conversation history                               |
 
 ## Package-Specific Testing Patterns
 

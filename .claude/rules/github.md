@@ -108,91 +108,94 @@ When extracting a GitHub issue number from a PR or user input:
 2. Check PR body for standalone `#123`
 3. If not found, ask user
 
-## MCP Tool Reference
+## `gh` CLI Reference
+
+All GitHub interactions use the `gh` CLI. Contributors authenticate once with `gh auth login` (browser OAuth — no token needed).
 
 ### Fetching Issues
 
-```
-mcp__github__get_issue(
-  owner: "nexus-labs",
-  repo: "context-engine",
-  issue_number: 123
-)
+```bash
+gh issue view 123 --json number,title,body,labels,state,url
 ```
 
-Key fields to extract:
-
-- `title`, `body` — Issue details and requirements
-- `labels` — Issue classification
-- `state` — `open` or `closed`
+Key fields: `title`, `body`, `labels`, `state`, `url`
 
 ### Adding Comments to Issues
 
-```
-mcp__github__add_issue_comment(
-  owner: "nexus-labs",
-  repo: "context-engine",
-  issue_number: 123,
-  body: "Comment text..."
-)
+```bash
+gh issue comment 123 --body "Comment text..."
 ```
 
 ### Creating PRs
 
-```
-mcp__github__create_pull_request(
-  owner: "nexus-labs",
-  repo: "context-engine",
-  title: "{conventional commit title}",
-  head: "{branch_name}",
-  base: "main",
-  body: "{PR body with Closes #123}"
-)
+```bash
+gh pr create \
+  --title "feat(server): add search endpoint" \
+  --body "$(cat <<'EOF'
+## Summary
+- ...
+
+## GitHub Issue
+Closes #123
+
+## Test Plan
+- [ ] ...
+EOF
+)" \
+  --base main
 ```
 
 ### Fetching PR Details
 
-```
-mcp__github__get_pull_request(
-  owner: "nexus-labs",
-  repo: "context-engine",
-  pull_number: {pr_number}
-)
+```bash
+gh pr view {pr_number} --json number,title,body,headRefName,baseRefName,author,url,mergedAt
 ```
 
-Key fields:
+Key fields: `title`, `body` (extract issue number from `Closes #123`), `mergedAt`, `headRefName`
 
-- `title` — PR title
-- `body` — PR description (extract issue number from `Closes #123`)
-- `merged_at` — Merge timestamp (null if not merged)
-- `head.ref` — Branch name
+### Fetching PR Diff (changed files + patches)
 
-### Fetching PR Files
-
-```
-mcp__github__get_pull_request_files(
-  owner: "nexus-labs",
-  repo: "context-engine",
-  pull_number: {pr_number}
-)
+```bash
+gh pr diff {pr_number}
 ```
 
-### Creating PR Reviews
+Use this to read the actual changes. For a structured file list:
 
-```
-mcp__github__create_pull_request_review(
-  owner: "nexus-labs",
-  repo: "context-engine",
-  pull_number: {pr_number},
-  body: "{review summary}",
-  event: "{APPROVE|COMMENT|REQUEST_CHANGES}",
-  comments: [
-    { path: "file.ts", line: 42, body: "Issue..." }
-  ]
-)
+```bash
+gh pr view {pr_number} --json files
 ```
 
-### Review Verdicts
+### Fetching PR Reviews
+
+```bash
+gh api repos/nexus-labs/context-engine/pulls/{pr_number}/reviews
+```
+
+### Fetching PR Inline Comments
+
+```bash
+gh api repos/nexus-labs/context-engine/pulls/{pr_number}/comments
+```
+
+### Fetching PR Commits
+
+```bash
+gh api repos/nexus-labs/context-engine/pulls/{pr_number}/commits
+```
+
+### Posting PR Reviews (with inline comments)
+
+```bash
+gh api repos/nexus-labs/context-engine/pulls/{pr_number}/reviews \
+  --method POST \
+  -f body="review summary" \
+  -f event="REQUEST_CHANGES" \
+  -F comments='[{"path":"src/server/routes.ts","line":42,"body":"Issue description"}]'
+```
+
+For reviews with multiple inline comments, build the JSON array and pass it via `-F comments=`.
+
+**Event values:**
 
 | Condition         | Event             |
 | ----------------- | ----------------- |

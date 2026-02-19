@@ -76,7 +76,7 @@ Parse `$ARGUMENTS` for:
 
    ```
    If .md file → Read testing plan
-   If #123 or numeric → mcp__github__get_issue(owner: "nexus-labs", repo: "context-engine", issue_number: 123)
+   If #123 or numeric → gh issue view 123 --json number,title,body,labels,state,url
    If .ts/.tsx file → Read source file to understand what to test
    Otherwise → Use conversation history as context
    ```

@@ -130,7 +130,7 @@ Parse `$ARGUMENTS` for:
 1. **Parse arguments for context:**
 
    ```
-   If #123 or numeric found → mcp__github__get_issue(owner: "nexus-labs", repo: "context-engine", issue_number: 123)
+   If #123 or numeric found → gh issue view 123 --json number,title,body,labels,state,url
    If .md path found → Read file content
    Otherwise → Use conversation history as context
    ```

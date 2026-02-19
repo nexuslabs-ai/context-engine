@@ -43,8 +43,8 @@ Based on task type, reference these rules when planning:
 
 1. **Fetch the GitHub issue if one is referenced:**
 
-   ```
-   mcp__github__get_issue(owner: "nexus-labs", repo: "context-engine", issue_number: 123)
+   ```bash
+   gh issue view 123 --json number,title,body,labels,state,url
    ```
 
 2. **Extract key information:**

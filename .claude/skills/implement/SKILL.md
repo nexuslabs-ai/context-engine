@@ -30,11 +30,11 @@ Implement features and tasks with production-quality code, following codebase co
 
 This skill works with multiple input types:
 
-| Source            | Detection                  | How to Extract                                                                           |
-| ----------------- | -------------------------- | ---------------------------------------------------------------------------------------- |
-| **GitHub issue**  | `#123` or GitHub issue URL | `mcp__github__get_issue(owner: "nexus-labs", repo: "context-engine", issue_number: 123)` |
-| **Markdown file** | `.md` file path referenced | Read the file content                                                                    |
-| **Conversation**  | Requirements in chat       | Parse from conversation history                                                          |
+| Source            | Detection                  | How to Extract                                                |
+| ----------------- | -------------------------- | ------------------------------------------------------------- |
+| **GitHub issue**  | `#123` or GitHub issue URL | `gh issue view 123 --json number,title,body,labels,state,url` |
+| **Markdown file** | `.md` file path referenced | Read the file content                                         |
+| **Conversation**  | Requirements in chat       | Parse from conversation history                               |
 
 ## Task-Specific Rules
 
@@ -111,8 +111,8 @@ After completion, provide:
 
 2. **If GitHub issue:**
 
-   ```
-   mcp__github__get_issue(owner: "nexus-labs", repo: "context-engine", issue_number: 123)
+   ```bash
+   gh issue view 123 --json number,title,body,labels,state,url
    ```
 
    - Extract requirements and acceptance criteria from issue body

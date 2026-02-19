@@ -86,10 +86,6 @@
     }
   },
   "mcp": {
-    "linear": {
-      "type": "remote",
-      "url": "https://mcp.linear.app/mcp"
-    },
     "chrome-devtools": {
       "type": "local",
       "command": [
@@ -97,13 +93,6 @@
         "chrome-devtools-mcp@latest",
         "--executable-path=/Applications/Brave Browser.app/Contents/MacOS/Brave Browser"
       ]
-    },
-    "github": {
-      "type": "local",
-      "command": ["npx", "-y", "@modelcontextprotocol/server-github"],
-      "environment": {
-        "GITHUB_PERSONAL_ACCESS_TOKEN": "REDACTED"
-      }
     }
   },
   "agent": {
