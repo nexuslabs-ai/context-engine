@@ -1,7 +1,6 @@
 # Context Engine
 
 [![License: AGPL v3](https://img.shields.io/badge/License-AGPL_v3-blue.svg)](https://www.gnu.org/licenses/agpl-3.0)
-[![CI](https://github.com/nexus-labs/context-engine/actions/workflows/ci.yml/badge.svg)](https://github.com/nexus-labs/context-engine/actions/workflows/ci.yml)
 
 Context Engine makes component libraries AI-accessible. AI coding assistants (Claude, Cursor, Copilot) hallucinate props and miss variants when working with custom design systems — because they have no knowledge of your components. Context Engine solves this by extracting accurate component metadata from source code and serving it to AI tools via MCP, so they generate correct code using your actual API.
 
