@@ -188,12 +188,18 @@ gh api repos/nexus-labs/context-engine/pulls/{pr_number}/commits
 ```bash
 gh api repos/nexus-labs/context-engine/pulls/{pr_number}/reviews \
   --method POST \
-  -f body="review summary" \
-  -f event="REQUEST_CHANGES" \
-  -F comments='[{"path":"src/server/routes.ts","line":42,"body":"Issue description"}]'
+  --input - <<'EOF'
+{
+  "body": "review summary",
+  "event": "REQUEST_CHANGES",
+  "comments": [
+    {"path": "src/server/routes.ts", "line": 42, "body": "Issue description"}
+  ]
+}
+EOF
 ```
 
-For reviews with multiple inline comments, build the JSON array and pass it via `-F comments=`.
+For reviews with multiple inline comments, build the complete JSON object and pass it via `--input` using a heredoc.
 
 **Event values:**
 

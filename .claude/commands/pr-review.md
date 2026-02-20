@@ -188,9 +188,15 @@ Review against:
    ```bash
    gh api repos/nexus-labs/context-engine/pulls/{pr_number}/reviews \
      --method POST \
-     -f body="{Principal Architect review from skill}" \
-     -f event="COMMENT" \
-     -F comments='[{inline comments}]'
+     --input - <<'EOF'
+   {
+   "body": "{Principal Architect review from skill}",
+   "event": "COMMENT",
+   "comments": [
+    {"path": "path/to/file", "line": 42, "body": "Issue description"}
+   ]
+   }
+   EOF
    ```
 
 2. **Post SDE2 review:**
@@ -198,9 +204,15 @@ Review against:
    ```bash
    gh api repos/nexus-labs/context-engine/pulls/{pr_number}/reviews \
      --method POST \
-     -f body="{SDE2 review from skill}" \
-     -f event="{APPROVE|COMMENT|REQUEST_CHANGES}" \
-     -F comments='[{inline comments}]'
+     --input - <<'EOF'
+   {
+   "body": "{SDE2 review from skill}",
+   "event": "{APPROVE|COMMENT|REQUEST_CHANGES}",
+   "comments": [
+    {"path": "path/to/file", "line": 42, "body": "Issue description"}
+   ]
+   }
+   EOF
    ```
 
    **Verdict logic:**
@@ -353,9 +365,15 @@ Task(
 ```bash
 gh api repos/nexus-labs/context-engine/pulls/{pr_number}/reviews \
   --method POST \
-  -f body="{Follow-up review}" \
-  -f event="{APPROVE|COMMENT|REQUEST_CHANGES}" \
-  -F comments='[{inline comments on new issues only}]'
+  --input - <<'EOF'
+{
+  "body": "{Follow-up review}",
+  "event": "{APPROVE|COMMENT|REQUEST_CHANGES}",
+  "comments": [
+    {"path": "path/to/file", "line": 42, "body": "New issue or still present"}
+  ]
+}
+EOF
 ```
 
 **Verdict logic for follow-up:**
