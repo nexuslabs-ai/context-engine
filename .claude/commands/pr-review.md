@@ -391,48 +391,19 @@ EOF
 ### Full Review Output
 
 ```markdown
-## PR Review Complete
+## PR Review — #{pr_number} {title}
 
-### PR: #{pr_number} - {title}
+**Principal Architect:** {APPROVED|NEEDS DISCUSSION|CHANGES REQUIRED}
+**SDE2:** {APPROVED|MINOR CHANGES|CHANGES REQUIRED}
 
-### Context Detected
+### Issues
 
-{packages/areas affected}
+| #   | Agent     | Severity    | File         | Issue         |
+| --- | --------- | ----------- | ------------ | ------------- |
+| 1   | Architect | ❌ Blocking | `file.ts:42` | {description} |
+| 2   | SDE2      | ⚠️ Minor    | `file.ts:15` | {description} |
 
-### Rules Loaded
-
-{list of rule files used}
-
-### Principal Architect Review
-
-**Verdict:** {APPROVED|NEEDS DISCUSSION|CHANGES REQUIRED}
-
-| Area          | Status  |
-| ------------- | ------- |
-| System Design | {emoji} |
-| Scalability   | {emoji} |
-| Data Model    | {emoji} |
-| Security      | {emoji} |
-
-**Challenges Raised:** {count}
-
-### SDE2 Review
-
-**Verdict:** {APPROVED|MINOR CHANGES|CHANGES REQUIRED}
-
-| Area           | Status  |
-| -------------- | ------- |
-| Type Safety    | {emoji} |
-| Error Handling | {emoji} |
-| Code Structure | {emoji} |
-
-**Issues:** {blocking} blocking, {minor} minor
-
-### Top Items to Address
-
-1. {Most critical from either review}
-2. {Second priority}
-3. {Third priority}
+{Omit Issues table entirely if no issues found.}
 
 ### Links
 
@@ -443,48 +414,27 @@ EOF
 ### Follow-up Review Output
 
 ```markdown
-## Follow-up PR Review
+## Follow-up Review — #{pr_number} {title}
 
-### PR: #{pr_number} - {title}
+**SDE2:** {APPROVED|MINOR CHANGES|CHANGES REQUIRED}
+**Architect:** {APPROVED|NEEDS DISCUSSION|CHANGES REQUIRED|⏭️ Skipped}
 
-### Review Scope
+### Unresolved Issues
 
-- **SDE2:** ✅ Reviewing changes
-- **Architect:** {✅ Reviewing | ⏭️ Skipped (no structural changes)}
+| #   | Original Issue | File         | Status           | Notes                |
+| --- | -------------- | ------------ | ---------------- | -------------------- |
+| 1   | {description}  | `file.ts:42` | ❌ Still Present | {what's still wrong} |
+| 2   | {description}  | `file.ts:15` | ⚠️ Partial       | {what's missing}     |
 
-### Previous Issues Status
+{If all resolved: "All previous issues resolved."}
 
-| Issue         | File        | Status           | Notes           |
-| ------------- | ----------- | ---------------- | --------------- |
-| {description} | {file:line} | ✅ Fixed         | {how fixed}     |
-| {description} | {file:line} | ❌ Still Present | {what's wrong}  |
-| {description} | {file:line} | ⚠️ Partial       | {what's needed} |
+### New Issues
 
-### Summary
+| #   | Agent | Severity    | File         | Issue         |
+| --- | ----- | ----------- | ------------ | ------------- |
+| 1   | SDE2  | ❌ Blocking | `file.ts:10` | {description} |
 
-- **Fixed:** {count} issues
-- **Still Present:** {count} issues
-- **New Issues:** {count} issues
-
-### New Changes Review
-
-| File   | Change         | Assessment       |
-| ------ | -------------- | ---------------- |
-| {file} | {what changed} | ✅/⚠️/❌ {notes} |
-
-### New Issues Found (if any)
-
-#### Blocking ❌
-
-- {new issue with file:line}
-
-#### Minor ⚠️
-
-- {new issue with file:line}
-
-### Verdict: {APPROVED|CHANGES REQUESTED}
-
-{Summary message}
+{Omit New Issues table entirely if none.}
 
 ### Links
 

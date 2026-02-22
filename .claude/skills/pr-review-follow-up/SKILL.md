@@ -99,85 +99,31 @@ For follow-up reviews, not all agents need to re-review:
 
 ## Output Format
 
-### SDE2 Follow-up Output
-
 ```markdown
-## SDE2 Follow-up Review
+## {Agent Name} Follow-up — Verdict: {VERDICT}
 
-### Previous Issues Status
+### Unresolved Issues
 
-| Issue         | File        | Status           | Notes            |
-| ------------- | ----------- | ---------------- | ---------------- |
-| {description} | {file:line} | ✅ Fixed         | {verification}   |
-| {description} | {file:line} | ❌ Still Present | {what's wrong}   |
-| {description} | {file:line} | ⚠️ Partial       | {what's missing} |
+| #   | Original Issue | File         | Status           | Notes                |
+| --- | -------------- | ------------ | ---------------- | -------------------- |
+| 1   | {description}  | `file.ts:42` | ❌ Still Present | {what's still wrong} |
+| 2   | {description}  | `file.ts:15` | ⚠️ Partial       | {what's missing}     |
 
-### Issue Resolution Summary
+### New Issues
 
-- **Fixed:** {count}
-- **Still Present:** {count}
-- **Partially Fixed:** {count}
-
-### New Changes Assessment
-
-Files modified since last review:
-
-| File   | Changes        | Assessment       |
-| ------ | -------------- | ---------------- |
-| {file} | {what changed} | ✅/⚠️/❌ {notes} |
-
-### New Issues Found
-
-#### Blocking ❌
-
-- {new issue with file:line}
-
-#### Minor ⚠️
-
-- {new issue with file:line}
-
-### Verdict: {VERDICT}
-
-{Summary of overall status}
-
----
-
-_Follow-up review - focused on changes since last review_
+| #   | Severity    | File         | Issue         | Suggestion                   |
+| --- | ----------- | ------------ | ------------- | ---------------------------- |
+| 1   | ❌ Blocking | `file.ts:10` | {description} | {only if fix is non-obvious} |
 ```
 
-### Principal Architect Follow-up Output
+**Rules:**
 
-```markdown
-## Principal Architect Follow-up Review
-
-### Scope
-
-Reviewing: {new files / structural changes / previous concerns}
-
-### Previous Concerns Status
-
-| Concern   | Status           | Notes   |
-| --------- | ---------------- | ------- |
-| {concern} | ✅ Addressed     | {how}   |
-| {concern} | ❌ Still Present | {issue} |
-
-### New Architectural Assessment
-
-| Area               | Status   | Notes        |
-| ------------------ | -------- | ------------ |
-| New Files          | ✅/⚠️/❌ | {assessment} |
-| Structural Changes | ✅/⚠️/❌ | {assessment} |
-
-### New Concerns (if any)
-
-{Any new architectural issues in the changes}
-
-### Verdict: {VERDICT}
-
----
-
-_Follow-up review - focused on changes since last review_
-```
+- `Unresolved Issues`: only include rows for issues that are ❌ Still Present or ⚠️ Partial. No ✅ Fixed rows.
+- If all previous issues are resolved, replace the table with: _All previous issues resolved._
+- `New Issues`: omit section entirely if no new issues found
+- No Issue Resolution Summary counters
+- No New Changes Assessment table (only surface problems, not a file-by-file audit)
+- No praise or "what's done well"
 
 ## Posting the Review
 
