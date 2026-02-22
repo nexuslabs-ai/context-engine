@@ -274,6 +274,7 @@ async function processComponent(
       storiesFilePath,
       framework: 'react' as const,
       availableComponents: getComponentNames(),
+      hints: component.hints,
     };
 
     if (phase === 'extract') {
@@ -303,6 +304,7 @@ async function processComponent(
         identity: extractResult.identity,
         extracted: extractResult.extracted,
         sourceHash: extractResult.sourceHash,
+        hints: input.hints,
       });
       timings.generation = Math.round(performance.now() - genStart);
 
@@ -317,14 +319,20 @@ async function processComponent(
 
     if (phase === 'build') {
       // Run full extract → generate → build pipeline then write manifest
+      // All phases timed individually so LLM cost is visible in output
+      const extractStart = performance.now();
       const extractResult = await processor.extract(input);
+      timings.extraction = Math.round(performance.now() - extractStart);
 
+      const genStart = performance.now();
       const genResult = await processor.generate({
         orgId: input.orgId,
         identity: extractResult.identity,
         extracted: extractResult.extracted,
         sourceHash: extractResult.sourceHash,
+        hints: input.hints,
       });
+      timings.generation = Math.round(performance.now() - genStart);
 
       const start = performance.now();
       const buildResult = processor.build({
@@ -360,6 +368,7 @@ async function processComponent(
       identity: extractResult.identity,
       extracted: extractResult.extracted,
       sourceHash: extractResult.sourceHash,
+      hints: input.hints,
     });
     timings.generation = Math.round(performance.now() - genStart);
 
