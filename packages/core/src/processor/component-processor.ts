@@ -29,7 +29,6 @@ import {
 import { ExtractionError } from '../types/errors.js';
 import { createLogger } from '../utils/logger.js';
 
-import { FileStateStore } from './file-state-store.js';
 import type {
   BuildInput,
   BuildResult,
@@ -39,9 +38,6 @@ import type {
   ProcessorConfig,
   ProcessorInput,
   ProcessorResult,
-  StoredExtraction,
-  StoredGeneration,
-  StoredManifest,
 } from './types.js';
 
 const logger = createLogger({ name: 'component-processor' });
@@ -96,7 +92,6 @@ export class ComponentProcessor {
   private readonly extractor: IExtractor;
   private readonly metaGenerator: MetaGenerator;
   private readonly manifestBuilder: ManifestBuilder;
-  private readonly store?: FileStateStore;
 
   /**
    * Create a new ComponentProcessor instance
@@ -118,15 +113,9 @@ export class ComponentProcessor {
     // Initialize manifest builder
     this.manifestBuilder = new ManifestBuilder();
 
-    // Initialize optional state store for persistent storage
-    if (config.storeDir) {
-      this.store = new FileStateStore(config.storeDir);
-    }
-
     logger.debug('ComponentProcessor initialized', {
       hasCustomProvider: !!config.llmProvider,
       hasExtractorOptions: !!config.extractorOptions,
-      hasStore: !!config.storeDir,
     });
   }
 
@@ -388,195 +377,6 @@ export class ComponentProcessor {
     });
 
     return result;
-  }
-
-  // ===========================================================================
-  // Persistent Operations (Require Store)
-  // ===========================================================================
-
-  /**
-   * Extract and store extraction result
-   *
-   * Performs extraction and persists the result for later use.
-   *
-   * @param input - Processing input
-   * @returns Extraction result
-   * @throws Error if store is not configured
-   * @throws ExtractionError if extraction fails
-   */
-  async extractAndStore(input: ProcessorInput): Promise<ExtractResult> {
-    const store = this.requireStore('extractAndStore');
-
-    const result = await this.extract(input);
-
-    const storedExtraction: StoredExtraction = {
-      componentName: input.name,
-      orgId: input.orgId,
-      identity: result.identity,
-      extracted: result.extracted,
-      sourceHash: result.sourceHash,
-      storedAt: new Date().toISOString(),
-    };
-
-    await store.saveExtraction(input.name, storedExtraction);
-
-    return result;
-  }
-
-  /**
-   * Generate from stored extraction and store generation result
-   *
-   * Loads stored extraction, runs generation, and saves the result.
-   *
-   * @param componentName - Component name to load extraction for
-   * @param options - Optional overrides
-   * @returns Generation result
-   * @throws Error if store is not configured or extraction not found
-   * @throws MetaGenerationError if generation fails
-   */
-  async generateAndStore(
-    componentName: string,
-    options?: { orgId?: string; hints?: string }
-  ): Promise<GenerateResult> {
-    const store = this.requireStore('generateAndStore');
-
-    const storedExtraction = await store.getExtraction(componentName);
-    if (!storedExtraction) {
-      throw new Error(
-        `No stored extraction found for component: ${componentName}`
-      );
-    }
-
-    const result = await this.generate({
-      orgId: options?.orgId ?? storedExtraction.orgId,
-      identity: storedExtraction.identity,
-      extracted: storedExtraction.extracted,
-      sourceHash: storedExtraction.sourceHash,
-      hints: options?.hints,
-    });
-
-    const storedGeneration: StoredGeneration = {
-      componentName,
-      meta: result.meta,
-      provider: result.provider,
-      model: result.model,
-      storedAt: new Date().toISOString(),
-    };
-
-    await store.saveGeneration(componentName, storedGeneration);
-
-    return result;
-  }
-
-  /**
-   * Build from stored extraction and generation, and store manifest
-   *
-   * Loads stored extraction and generation, builds manifest, and saves it.
-   *
-   * @param componentName - Component name to load data for
-   * @param options - Optional overrides
-   * @returns Manifest build result
-   * @throws Error if store is not configured or data not found
-   * @throws ManifestBuildError if building fails
-   */
-  async buildAndStore(
-    componentName: string,
-    options?: { orgId?: string }
-  ): Promise<BuildResult> {
-    const store = this.requireStore('buildAndStore');
-
-    const storedExtraction = await store.getExtraction(componentName);
-    if (!storedExtraction) {
-      throw new Error(
-        `No stored extraction found for component: ${componentName}`
-      );
-    }
-
-    const storedGeneration = await store.getGeneration(componentName);
-    if (!storedGeneration) {
-      throw new Error(
-        `No stored generation found for component: ${componentName}`
-      );
-    }
-
-    const result = this.build({
-      orgId: options?.orgId ?? storedExtraction.orgId,
-      identity: storedExtraction.identity,
-      extracted: storedExtraction.extracted,
-      meta: storedGeneration.meta,
-      sourceHash: storedExtraction.sourceHash,
-    });
-
-    const storedManifest: StoredManifest = {
-      componentName,
-      identity: result.identity,
-      manifest: result.manifest,
-      sourceHash: result.sourceHash,
-      files: result.files,
-      storedAt: new Date().toISOString(),
-    };
-
-    await store.saveManifest(componentName, storedManifest);
-
-    return result;
-  }
-
-  /**
-   * Process with storage at each phase
-   *
-   * Runs the full pipeline and saves state after each phase.
-   *
-   * @param input - Processing input
-   * @returns Processing result
-   * @throws Error if store is not configured
-   * @throws ExtractionError if extraction fails
-   * @throws MetaGenerationError if generation fails
-   * @throws ManifestBuildError if building fails
-   */
-  async processAndStore(input: ProcessorInput): Promise<ProcessorResult> {
-    // Phase 1: Extract and store (throws on error)
-    const extractResult = await this.extractAndStore(input);
-
-    // Phase 2: Generate and store (throws on error)
-    await this.generateAndStore(input.name, {
-      orgId: input.orgId,
-      hints: input.hints,
-    });
-
-    // Phase 3: Build and store (throws on error)
-    const buildResult = await this.buildAndStore(input.name, {
-      orgId: input.orgId,
-    });
-
-    return {
-      componentName: buildResult.componentName,
-      identity: buildResult.identity,
-      manifest: buildResult.manifest,
-      sourceHash: buildResult.sourceHash,
-      files: buildResult.files,
-      extraction: extractResult.metadata,
-    };
-  }
-
-  // ===========================================================================
-  // Private Helpers
-  // ===========================================================================
-
-  /**
-   * Require store to be configured
-   *
-   * @param methodName - Method name for error message
-   * @returns Store instance
-   * @throws Error if store is not configured
-   */
-  private requireStore(methodName: string): FileStateStore {
-    if (!this.store) {
-      throw new Error(
-        `ComponentProcessor.${methodName}() requires a store. ` +
-          `Pass storeDir in the config: new ComponentProcessor({ storeDir: './state' }).`
-      );
-    }
-    return this.store;
   }
 }
 

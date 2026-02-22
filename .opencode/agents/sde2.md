@@ -1,7 +1,7 @@
 ---
 description: Implementation specialist for code quality, testing, and correctness. Use proactively for code review, implementation, fixing issues, and any coding tasks.
 mode: subagent
-model: anthropic/claude-sonnet-4-5
+model: anthropic/claude-sonnet-4-6
 tools:
   read: true
   grep: true

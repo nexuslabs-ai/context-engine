@@ -114,40 +114,38 @@ These items apply regardless of review perspective:
 ## Output Format
 
 ```markdown
-## {Agent Name} Review
+## {Agent Name} Review — Verdict: {VERDICT}
 
-### Summary
+### Issues
 
-| Area           | Status   | Notes   |
-| -------------- | -------- | ------- |
-| {focus area 1} | ✅/⚠️/❌ | {notes} |
-| {focus area 2} | ✅/⚠️/❌ | {notes} |
-| {focus area 3} | ✅/⚠️/❌ | {notes} |
+| #   | Severity    | File         | Issue                 | Suggestion                   |
+| --- | ----------- | ------------ | --------------------- | ---------------------------- |
+| 1   | ❌ Blocking | `file.ts:42` | {concise description} | {only if fix is non-obvious} |
+| 2   | ⚠️ Minor    | `file.ts:15` | {concise description} | {only if fix is non-obvious} |
 
-### Verdict: {VERDICT}
+### Architectural Concerns
 
-### Observations
+{Only include this section for genuine design-level issues where the fix isn't obvious.
+Use: **{Concern title}** (`file.ts:line`) — 1–2 sentences max. Omit section entirely if none.}
 
-{What's done well}
+### Research Flags
 
-### Challenges & Proposals
+{Only include if third-party dependency research found misuse. Omit section entirely if none.}
 
-{Use Challenge & Propose format from agent for each issue}
-
-### Issues Found
-
-#### Blocking ❌
-
-- {issue with file:line reference}
-
-#### Minor ⚠️
-
-- {issue with file:line reference}
-
----
-
-_Review perspective: {Agent persona}_
+| Technology | Issue          | Recommendation |
+| ---------- | -------------- | -------------- |
+| {name}     | {what's wrong} | {what to do}   |
 ```
+
+**Rules:**
+
+- Omit `Architectural Concerns` section entirely if there are none
+- Omit `Research Flags` section entirely if there are none
+- Omit `Issues` table entirely if there are no issues (verdict will be `APPROVED`)
+- `Suggestion` column: only populate when the fix isn't obvious from the description
+- No "Observations", "What's done well", or praise of any kind
+- No summary status table
+- Challenge & Propose format is retired — use `Architectural Concerns` for design discussions only
 
 ## Posting the Review
 

@@ -3,7 +3,7 @@
  * Processor Runner Script
  *
  * CLI script that processes Nexus components through the extraction-generation
- * processor and saves outputs to a local directory.
+ * processor and saves outputs to a local directory as JSON files.
  *
  * Usage:
  *   tsx scripts/run-processor.ts --phase <phase> [options]
@@ -22,11 +22,12 @@
  */
 
 import { config } from 'dotenv';
-import { readFile } from 'node:fs/promises';
-import { dirname, resolve } from 'node:path';
+import { mkdir, readFile, writeFile } from 'node:fs/promises';
+import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 import { ComponentProcessor } from '../src/processor/index.js';
+import { kebabCase } from '../src/utils/case.js';
 import { createProviderFromEnv } from '../src/utils/env-provider.js';
 import { createLogger } from '../src/utils/logger.js';
 
@@ -119,26 +120,26 @@ Options:
   --help, -h           Show this help message
 
 Phases:
-  extract   Extract props, variants, dependencies from source code
-  generate  Generate semantic metadata via LLM (requires prior extraction)
-  build     Build manifest from stored extraction and generation
-  full      Full pipeline via processAndStore (extract → generate → build)
+  extract   Extract props, variants, dependencies from source code (no LLM)
+  generate  Re-extract then generate semantic metadata via LLM
+  build     Build manifest from in-memory extraction and generation
+  full      Full pipeline: extract → generate → build → write JSON
 
 Examples:
   # Process all components through full processor
-  tsx scripts/run-processor.ts
+  tsx scripts/run-processor.ts --phase full
 
   # Extract only (fast, no LLM)
   tsx scripts/run-processor.ts --phase extract
 
   # Process single component
-  tsx scripts/run-processor.ts --component Button
+  tsx scripts/run-processor.ts --phase full --component Button
 
   # Extract single component
-  tsx scripts/run-processor.ts --component Button --phase extract
+  tsx scripts/run-processor.ts --phase extract --component Button
 
   # Custom output directory
-  tsx scripts/run-processor.ts --output ./my-output
+  tsx scripts/run-processor.ts --phase full --output ./my-output
 
 Available Components:
   ${getComponentNames().join(', ')}
@@ -174,14 +175,15 @@ function printHeader(
 function printSummary(
   succeeded: string[],
   failed: Array<{ name: string; error: string }>,
-  totalTimeMs: number
+  totalTimeMs: number,
+  totalComponents: number
 ): void {
   logger.info('');
   logger.info('-'.repeat(65));
   logger.info('Summary');
   logger.info('-'.repeat(65));
   logger.info(
-    `Processed: ${succeeded.length + failed.length}/${succeeded.length + failed.length}`
+    `Processed: ${succeeded.length + failed.length}/${totalComponents}`
   );
   logger.info(`Succeeded: ${succeeded.length}`);
   logger.info(`Failed: ${failed.length}`);
@@ -205,7 +207,7 @@ function formatMs(ms: number): string {
 }
 
 // =============================================================================
-// File Reading
+// File I/O
 // =============================================================================
 
 async function readComponentFile(component: ComponentDefinition): Promise<{
@@ -232,6 +234,17 @@ async function readComponentFile(component: ComponentDefinition): Promise<{
   return { sourceCode, storiesCode, filePath, storiesFilePath };
 }
 
+async function writeJsonOutput(
+  outputDir: string,
+  componentName: string,
+  type: 'extraction' | 'generation' | 'manifest',
+  data: unknown
+): Promise<void> {
+  const fileName = `${kebabCase(componentName)}.${type}.json`;
+  const filePath = join(outputDir, fileName);
+  await writeFile(filePath, JSON.stringify(data, null, 2), 'utf-8');
+}
+
 // =============================================================================
 // Component Processing
 // =============================================================================
@@ -239,7 +252,8 @@ async function readComponentFile(component: ComponentDefinition): Promise<{
 async function processComponent(
   processor: ComponentProcessor,
   component: ComponentDefinition,
-  phase: Phase
+  phase: Phase,
+  outputDir: string
 ): Promise<{
   success: boolean;
   timings: Record<string, number>;
@@ -260,33 +274,137 @@ async function processComponent(
       storiesFilePath,
       framework: 'react' as const,
       availableComponents: getComponentNames(),
+      hints: component.hints,
     };
 
     if (phase === 'extract') {
       const start = performance.now();
-      await processor.extractAndStore(input);
+      const extractResult = await processor.extract(input);
       timings.extraction = Math.round(performance.now() - start);
+
+      await writeJsonOutput(outputDir, component.name, 'extraction', {
+        identity: extractResult.identity,
+        extracted: extractResult.extracted,
+        sourceHash: extractResult.sourceHash,
+        metadata: extractResult.metadata,
+      });
+
       return { success: true, timings };
     }
 
     if (phase === 'generate') {
-      const start = performance.now();
-      await processor.generateAndStore(component.name);
-      timings.generation = Math.round(performance.now() - start);
+      // Re-extract in-memory to get extraction result for generation
+      const extractStart = performance.now();
+      const extractResult = await processor.extract(input);
+      timings.extraction = Math.round(performance.now() - extractStart);
+
+      const genStart = performance.now();
+      const genResult = await processor.generate({
+        orgId: input.orgId,
+        identity: extractResult.identity,
+        extracted: extractResult.extracted,
+        sourceHash: extractResult.sourceHash,
+        hints: input.hints,
+      });
+      timings.generation = Math.round(performance.now() - genStart);
+
+      await writeJsonOutput(outputDir, component.name, 'generation', {
+        meta: genResult.meta,
+        provider: genResult.provider,
+        model: genResult.model,
+      });
+
       return { success: true, timings };
     }
 
     if (phase === 'build') {
+      // Run full extract → generate → build pipeline then write manifest
+      // All phases timed individually so LLM cost is visible in output
+      const extractStart = performance.now();
+      const extractResult = await processor.extract(input);
+      timings.extraction = Math.round(performance.now() - extractStart);
+
+      const genStart = performance.now();
+      const genResult = await processor.generate({
+        orgId: input.orgId,
+        identity: extractResult.identity,
+        extracted: extractResult.extracted,
+        sourceHash: extractResult.sourceHash,
+        hints: input.hints,
+      });
+      timings.generation = Math.round(performance.now() - genStart);
+
       const start = performance.now();
-      await processor.buildAndStore(component.name);
+      const buildResult = processor.build({
+        orgId: input.orgId,
+        identity: extractResult.identity,
+        extracted: extractResult.extracted,
+        meta: genResult.meta,
+        sourceHash: extractResult.sourceHash,
+        availableComponents: input.availableComponents,
+      });
       timings.build = Math.round(performance.now() - start);
+
+      await writeJsonOutput(outputDir, component.name, 'manifest', {
+        componentName: buildResult.componentName,
+        identity: buildResult.identity,
+        manifest: buildResult.manifest,
+        sourceHash: buildResult.sourceHash,
+        builtAt: buildResult.builtAt,
+        // files omitted intentionally — consumers can derive from filePath in identity
+      });
+
       return { success: true, timings };
     }
 
-    // Full processing via processAndStore
-    const start = performance.now();
-    await processor.processAndStore(input);
-    timings.total = Math.round(performance.now() - start);
+    // Full pipeline: extract → generate → build, write all phases
+    const extractStart = performance.now();
+    const extractResult = await processor.extract(input);
+    timings.extraction = Math.round(performance.now() - extractStart);
+
+    const genStart = performance.now();
+    const genResult = await processor.generate({
+      orgId: input.orgId,
+      identity: extractResult.identity,
+      extracted: extractResult.extracted,
+      sourceHash: extractResult.sourceHash,
+      hints: input.hints,
+    });
+    timings.generation = Math.round(performance.now() - genStart);
+
+    const buildStart = performance.now();
+    const buildResult = processor.build({
+      orgId: input.orgId,
+      identity: extractResult.identity,
+      extracted: extractResult.extracted,
+      meta: genResult.meta,
+      sourceHash: extractResult.sourceHash,
+      availableComponents: input.availableComponents,
+    });
+    timings.build = Math.round(performance.now() - buildStart);
+
+    await Promise.all([
+      writeJsonOutput(outputDir, component.name, 'extraction', {
+        identity: extractResult.identity,
+        extracted: extractResult.extracted,
+        sourceHash: extractResult.sourceHash,
+        metadata: extractResult.metadata,
+      }),
+      writeJsonOutput(outputDir, component.name, 'generation', {
+        meta: genResult.meta,
+        provider: genResult.provider,
+        model: genResult.model,
+      }),
+      writeJsonOutput(outputDir, component.name, 'manifest', {
+        componentName: buildResult.componentName,
+        identity: buildResult.identity,
+        manifest: buildResult.manifest,
+        sourceHash: buildResult.sourceHash,
+        builtAt: buildResult.builtAt,
+        // files omitted intentionally — consumers can derive from filePath in identity
+      }),
+    ]);
+
     return { success: true, timings };
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
@@ -338,9 +456,11 @@ async function main(): Promise<void> {
   // Resolve output directory
   const outputDir = resolve(process.cwd(), args.output);
 
-  // Create processor with storeDir for persistent storage
+  // Ensure output directory exists once before the loop (avoids N mkdir syscalls)
+  await mkdir(outputDir, { recursive: true });
+
+  // Create processor (no storeDir — storage handled by this script)
   const processor = new ComponentProcessor({
-    storeDir: outputDir,
     llmProvider: createProviderFromEnv(),
   });
 
@@ -357,7 +477,12 @@ async function main(): Promise<void> {
 
     logger.info(`Processing ${component.name}...`);
 
-    const result = await processComponent(processor, component, args.phase);
+    const result = await processComponent(
+      processor,
+      component,
+      args.phase,
+      outputDir
+    );
 
     if (result.success) {
       succeeded.push(component.name);
@@ -376,14 +501,9 @@ async function main(): Promise<void> {
       if (result.timings.build !== undefined && result.timings.build > 0) {
         logger.info(`  [ok] Build (${formatMs(result.timings.build)})`);
       }
-      if (result.timings.total !== undefined) {
-        logger.info(`  [ok] Full pipeline (${formatMs(result.timings.total)})`);
-      }
 
       // Show saved location
-      const kebabName = component.name
-        .replace(/([a-z])([A-Z])/g, '$1-$2')
-        .toLowerCase();
+      const kebabName = kebabCase(component.name);
       logger.info(`  -> Saved to ${args.output}/${kebabName}.*.json`);
     } else {
       failed.push({
@@ -395,7 +515,9 @@ async function main(): Promise<void> {
 
     // Add delay between LLM calls if processing multiple components
     if (
-      (args.phase === 'generate' || args.phase === 'full') &&
+      (args.phase === 'generate' ||
+        args.phase === 'build' ||
+        args.phase === 'full') &&
       i < components.length - 1
     ) {
       await new Promise((resolve) => setTimeout(resolve, LLM_DELAY_MS));
@@ -406,7 +528,7 @@ async function main(): Promise<void> {
 
   // Print summary
   const totalTimeMs = performance.now() - startTime;
-  printSummary(succeeded, failed, totalTimeMs);
+  printSummary(succeeded, failed, totalTimeMs, components.length);
 
   // Exit with appropriate code
   process.exit(failed.length > 0 ? 1 : 0);

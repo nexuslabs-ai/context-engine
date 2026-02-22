@@ -17,6 +17,12 @@ export interface ComponentDefinition {
 
   /** Optional path to Storybook stories file (relative to scripts directory) */
   storiesPath?: string;
+
+  /**
+   * Optional hints to guide LLM generation.
+   * Provides additional context about the component beyond what's extracted from code.
+   */
+  hints?: string;
 }
 
 /**

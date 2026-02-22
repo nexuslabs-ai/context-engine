@@ -17,13 +17,12 @@
  * - KEEP only explicitly defined component props
  */
 
+import { existsSync } from 'node:fs';
 import {
   type ParserOptions,
   type PropItem,
   withCompilerOptions,
 } from 'react-docgen-typescript';
-
-import { existsSync } from 'node:fs';
 import ts from 'typescript';
 
 import type { ExtractedProp } from '../types/index.js';
