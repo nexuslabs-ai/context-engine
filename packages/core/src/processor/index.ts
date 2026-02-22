@@ -13,9 +13,6 @@ export {
   createComponentProcessor,
 } from './component-processor.js';
 
-// Re-export FileStateStore for consumers who want to use persistent storage
-export { FileStateStore } from './file-state-store.js';
-
 // =============================================================================
 // Types
 // =============================================================================
@@ -40,17 +37,6 @@ export type {
   ProcessorConfig,
   ProcessorInput,
   ProcessorResult,
-} from './types.js';
-
-// =============================================================================
-// State Store Types (for persistent storage)
-// =============================================================================
-
-export type {
-  StoredComponentState,
-  StoredExtraction,
-  StoredGeneration,
-  StoredManifest,
 } from './types.js';
 
 // =============================================================================

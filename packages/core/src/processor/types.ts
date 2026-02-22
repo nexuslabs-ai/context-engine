@@ -5,7 +5,6 @@
  * Extract -> Generate -> Build Manifest
  *
  * All methods throw on error - no discriminated unions.
- * Includes stored state types for optional persistent state storage.
  */
 
 import type { HybridExtractorOptions } from '../extractor/index.js';
@@ -52,127 +51,6 @@ export interface ProcessorConfig {
    * ```
    */
   extractorOptions?: HybridExtractorOptions;
-
-  /**
-   * Optional directory path for persistent state storage.
-   * When provided, enables checkpoint-based processing where state
-   * can be saved after each phase (extraction, generation, build).
-   *
-   * The processor will create a FileStateStore internally using this directory.
-   * Use with `extractAndStore`, `generateAndStore`, and `buildAndStore` methods.
-   *
-   * @example
-   * ```typescript
-   * const processor = new ComponentProcessor({ storeDir: './state' });
-   *
-   * // Extract and save checkpoint
-   * await processor.extractAndStore(input);
-   *
-   * // Later: resume from checkpoint
-   * await processor.generateAndStore('Button');
-   * ```
-   */
-  storeDir?: string;
-}
-
-// =============================================================================
-// Stored State Types
-// =============================================================================
-
-/**
- * Stored extraction state
- *
- * Persisted result from the extraction phase, containing all data
- * needed to resume with generation or rebuild manifests.
- */
-export interface StoredExtraction {
-  /** Component name (PascalCase) */
-  componentName: string;
-
-  /** Organization ID for multi-org isolation */
-  orgId: string;
-
-  /** Component identity (id, slug, name, framework) */
-  identity: ManifestIdentity;
-
-  /** Extracted data from source code analysis */
-  extracted: ExtractedData;
-
-  /** Hash of source code for change detection */
-  sourceHash: string;
-
-  /** ISO timestamp when extraction was stored */
-  storedAt: string;
-}
-
-/**
- * Stored generation state
- *
- * Persisted result from the generation phase, containing LLM-generated
- * metadata that can be combined with extraction to build manifests.
- */
-export interface StoredGeneration {
-  /** Component name (PascalCase) */
-  componentName: string;
-
-  /** Generated component metadata */
-  meta: ComponentMeta;
-
-  /** LLM provider type used */
-  provider: string;
-
-  /** Model identifier used for generation */
-  model: string;
-
-  /** ISO timestamp when generation was stored */
-  storedAt: string;
-}
-
-/**
- * Stored manifest
- *
- * Persisted complete manifest, representing the final output
- * of the extraction-generation-build pipeline. Flat structure
- * matching ManifestOutput.
- */
-export interface StoredManifest {
-  /** Component name (PascalCase) */
-  componentName: string;
-
-  /** Component identity (id, slug, name, framework) */
-  identity: ManifestIdentity;
-
-  /** AI-focused manifest (optimized for consumption) */
-  manifest: AIManifest;
-
-  /** Hash of source code for change detection */
-  sourceHash: string;
-
-  /** Source files used for extraction */
-  files: string[];
-
-  /** ISO timestamp when manifest was stored */
-  storedAt: string;
-}
-
-/**
- * Stored component state
- *
- * Combined state for a component, including extraction, generation,
- * and manifest data. Used for querying complete component state.
- */
-export interface StoredComponentState {
-  /** Component name (PascalCase) */
-  componentName: string;
-
-  /** Stored extraction (if available) */
-  extraction?: StoredExtraction;
-
-  /** Stored generation (if available) */
-  generation?: StoredGeneration;
-
-  /** Stored manifest (if available) */
-  manifest?: StoredManifest;
 }
 
 // =============================================================================
