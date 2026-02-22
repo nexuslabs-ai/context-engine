@@ -1,7 +1,7 @@
 ---
 description: Senior architect for system design, scalability, and architectural decisions. Use proactively for architectural review, design planning, and complex technical decisions.
 mode: subagent
-model: anthropic/claude-opus-4-5
+model: anthropic/claude-opus-4-6
 tools:
   read: true
   grep: true
