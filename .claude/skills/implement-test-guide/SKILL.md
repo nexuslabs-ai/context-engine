@@ -1,5 +1,5 @@
 ---
-name: implement-test
+name: implement-test-guide
 description: Implement tests with production-quality coverage. Use when implementing test suites, adding test coverage, or building testing infrastructure.
 allowed-tools:
   - Read
@@ -8,7 +8,7 @@ allowed-tools:
   - Bash
   - Edit
   - Write
-user-invocable: true
+user-invocable: false
 ---
 
 # Implement Test

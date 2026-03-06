@@ -5,7 +5,7 @@ tools: Read, Grep, Glob, Bash, Edit, Write, WebSearch
 model: sonnet
 permissionMode: bypassPermissions
 skills:
-  - update-docs
+  - update-docs-guide
 ---
 
 # Technical Writer Agent

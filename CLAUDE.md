@@ -125,26 +125,26 @@ yarn server:start   # Production server
 
 ## Skills (Auto-Discovered)
 
-| Skill                                                              | Purpose                                   |
-| ------------------------------------------------------------------ | ----------------------------------------- |
-| [pr-review](.claude/skills/pr-review/SKILL.md)                     | PR review framework                       |
-| [pr-review-follow-up](.claude/skills/pr-review-follow-up/SKILL.md) | Follow-up review verification             |
-| [implement](.claude/skills/implement/SKILL.md)                     | Feature implementation                    |
-| [implement-test](.claude/skills/implement-test/SKILL.md)           | Test implementation                       |
-| [pr-fix](.claude/skills/pr-fix/SKILL.md)                           | Fix PR review issues                      |
-| [design-plan](.claude/skills/design-plan/SKILL.md)                 | Architecture planning                     |
-| [update-docs](.claude/skills/update-docs/SKILL.md)                 | Documentation updates                     |
-| [analyze-deps](.claude/skills/analyze-deps/SKILL.md)               | Dependency analysis and migration reports |
+| Skill                                                                          | Purpose                                   |
+| ------------------------------------------------------------------------------ | ----------------------------------------- |
+| [pr-review-guide](.claude/skills/pr-review-guide/SKILL.md)                     | PR review framework                       |
+| [pr-review-follow-up](.claude/skills/pr-review-follow-up/SKILL.md)             | Follow-up review verification             |
+| [implement-guide](.claude/skills/implement-guide/SKILL.md)                     | Feature implementation                    |
+| [implement-test-guide](.claude/skills/implement-test-guide/SKILL.md)           | Test implementation                       |
+| [pr-fix-guide](.claude/skills/pr-fix-guide/SKILL.md)                           | Fix PR review issues                      |
+| [design-plan](.claude/skills/design-plan/SKILL.md)                             | Architecture planning                     |
+| [update-docs-guide](.claude/skills/update-docs-guide/SKILL.md)                 | Documentation updates                     |
+| [analyze-deps-guide](.claude/skills/analyze-deps-guide/SKILL.md)               | Dependency analysis and migration reports |
 
 ## Agents (Auto-Delegated)
 
 | Agent                                                        | Skills                                            | Focus                        |
 | ------------------------------------------------------------ | ------------------------------------------------- | ---------------------------- |
-| [principal-architect](.claude/agents/principal-architect.md) | pr-review, pr-review-follow-up, design-plan       | Architecture, scalability    |
-| [sde2](.claude/agents/sde2.md)                               | pr-review, pr-review-follow-up, implement, pr-fix | Code quality, implementation |
-| [tester](.claude/agents/tester.md)                           | implement-test                                    | Test strategy, quality       |
-| [technical-writer](.claude/agents/technical-writer.md)       | update-docs                                       | Documentation accuracy       |
-| [devops](.claude/agents/devops.md)                           | analyze-deps                                      | Infrastructure, dependencies |
+| [principal-architect](.claude/agents/principal-architect.md) | pr-review-guide, pr-review-follow-up, design-plan            | Architecture, scalability    |
+| [sde2](.claude/agents/sde2.md)                               | pr-review-guide, pr-review-follow-up, implement-guide, pr-fix-guide | Code quality, implementation |
+| [tester](.claude/agents/tester.md)                           | implement-test-guide                                          | Test strategy, quality       |
+| [technical-writer](.claude/agents/technical-writer.md)       | update-docs-guide                                             | Documentation accuracy       |
+| [devops](.claude/agents/devops.md)                           | analyze-deps-guide                                            | Infrastructure, dependencies |
 
 ## Slash Commands
 

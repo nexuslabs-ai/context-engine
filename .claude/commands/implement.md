@@ -7,7 +7,7 @@ Implement features and tasks using the SDE2 agent, with optional architectural g
 | Agent                                                   | Skill                                         | When Used                         |
 | ------------------------------------------------------- | --------------------------------------------- | --------------------------------- |
 | [Principal Architect](../agents/principal-architect.md) | [design-plan](../skills/design-plan/SKILL.md) | Only with `--with-architect` flag |
-| [SDE2](../agents/sde2.md)                               | [implement](../skills/implement/SKILL.md)     | Always                            |
+| [SDE2](../agents/sde2.md)                               | [implement](../skills/implement-guide/SKILL.md)     | Always                            |
 
 ## Input (Optional)
 

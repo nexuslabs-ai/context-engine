@@ -1,5 +1,5 @@
 ---
-name: analyze-deps
+name: analyze-deps-guide
 description: Analyze dependencies for updates, breaking changes, deprecations, and migration paths. Generates actionable reports with codebase impact assessment.
 allowed-tools:
   - Read
@@ -9,7 +9,7 @@ allowed-tools:
   - WebSearch
   - WebFetch
   - Write
-user-invocable: true
+user-invocable: false
 ---
 
 # Analyze Dependencies

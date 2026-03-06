@@ -1,5 +1,5 @@
 ---
-name: update-docs
+name: update-docs-guide
 description: Update documentation based on codebase changes. Use when documentation needs updates after code changes, or to ensure docs stay accurate.
 allowed-tools:
   - Read
@@ -9,7 +9,7 @@ allowed-tools:
   - Edit
   - Write
   - WebSearch
-user-invocable: true
+user-invocable: false
 ---
 
 # Update Docs
@@ -56,7 +56,7 @@ Update documentation based on codebase changes.
 {scope description - recent changes / specific path / full audit}
 
 ## Instructions
-1. Read the update-docs skill at `.claude/skills/update-docs/SKILL.md`
+1. Read the update-docs-guide skill at `.claude/skills/update-docs-guide/SKILL.md`
 2. Follow the workflow phases (analyze → discover → compare → propose → apply)
 3. Use dynamic discovery, not hardcoded mappings
 4. Prioritize: Critical (incorrect) > High (missing APIs) > Medium (examples) > Low (wording)

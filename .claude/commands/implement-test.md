@@ -6,7 +6,7 @@ Implement tests using the Tester agent, focusing on result validation over code 
 
 | Agent                         | Skill                                               | When Used |
 | ----------------------------- | --------------------------------------------------- | --------- |
-| [Tester](../agents/tester.md) | [implement-test](../skills/implement-test/SKILL.md) | Always    |
+| [Tester](../agents/tester.md) | [implement-test](../skills/implement-test-guide/SKILL.md) | Always    |
 
 ## Input (Optional)
 

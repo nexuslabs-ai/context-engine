@@ -6,8 +6,8 @@ Comprehensive code review using dual-agent analysis. Auto-detects context based 
 
 | Agent                                                   | Skill                                     | Perspective                  |
 | ------------------------------------------------------- | ----------------------------------------- | ---------------------------- |
-| [Principal Architect](../agents/principal-architect.md) | [pr-review](../skills/pr-review/SKILL.md) | Architecture & system design |
-| [SDE2](../agents/sde2.md)                               | [pr-review](../skills/pr-review/SKILL.md) | Code quality & correctness   |
+| [Principal Architect](../agents/principal-architect.md) | [pr-review](../skills/pr-review-guide/SKILL.md) | Architecture & system design |
+| [SDE2](../agents/sde2.md)                               | [pr-review](../skills/pr-review-guide/SKILL.md) | Code quality & correctness   |
 
 ## Required Input
 

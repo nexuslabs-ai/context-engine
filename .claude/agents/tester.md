@@ -5,7 +5,7 @@ tools: Read, Grep, Glob, Bash, Edit, Write, WebSearch
 model: opus
 permissionMode: bypassPermissions
 skills:
-  - implement-test
+  - implement-test-guide
 ---
 
 # Tester Agent

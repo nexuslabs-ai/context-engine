@@ -5,7 +5,7 @@ tools: Read, Grep, Glob, Bash, Edit, Write, WebSearch, WebFetch
 model: opus
 permissionMode: bypassPermissions
 skills:
-  - pr-review
+  - pr-review-guide
   - pr-review-follow-up
   - design-plan
 ---

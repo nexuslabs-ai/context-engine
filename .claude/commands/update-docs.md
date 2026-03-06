@@ -6,7 +6,7 @@ Update documentation based on codebase changes using the Technical Writer agent.
 
 | Agent                                             | Skill                                         | Purpose                         |
 | ------------------------------------------------- | --------------------------------------------- | ------------------------------- |
-| [Technical Writer](../agents/technical-writer.md) | [update-docs](../skills/update-docs/SKILL.md) | Keep docs accurate and complete |
+| [Technical Writer](../agents/technical-writer.md) | [update-docs](../skills/update-docs-guide/SKILL.md) | Keep docs accurate and complete |
 
 ## Input (Optional)
 

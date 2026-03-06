@@ -8,7 +8,7 @@ allowed-tools:
   - Bash
   - WebSearch
   - WebFetch
-user-invocable: true
+user-invocable: false
 ---
 
 # Design Plan

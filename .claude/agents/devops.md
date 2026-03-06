@@ -5,7 +5,7 @@ tools: Read, Grep, Glob, Bash, Edit, Write, WebSearch, WebFetch
 model: opus
 permissionMode: bypassPermissions
 skills:
-  - analyze-deps
+  - analyze-deps-guide
 ---
 
 # DevOps Agent
